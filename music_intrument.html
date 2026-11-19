@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Suno Short-Tag Dynamic</title>
+<style>
+:root{--bg:#0f172a;--c:#1e293b;--b:#334155;--p:#38bdf8;--a:#10b981;--t:#f1f5f9;--m:#94a3b8}
+*{box-sizing:border-box;font-family:system-ui,sans-serif}
+body{background:var(--bg);color:var(--t);margin:0;padding:12px}
+.box{max-width:600px;margin:auto}
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+h1{font-size:1.05rem;margin:0;color:var(--p)}
+.card{background:var(--c);border:1px solid var(--b);border-radius:10px;padding:12px;margin-bottom:12px}
+label{display:block;font-size:.74rem;font-weight:700;color:var(--m);margin-bottom:5px;text-transform:uppercase}
+select,input,textarea{width:100%;background:var(--bg);border:1px solid var(--b);color:var(--t);padding:9px;border-radius:7px;font-size:.88rem;margin-bottom:10px}
+.chips{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px}
+.chip{background:var(--bg);border:1px solid var(--b);padding:5px 9px;border-radius:16px;font-size:.76rem;cursor:pointer}
+.chip.active{background:var(--p);color:var(--bg);font-weight:700}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.rel{position:relative}
+.cp{position:absolute;top:6px;right:6px;background:var(--p);color:var(--bg);border:0;padding:4px 9px;border-radius:5px;font-size:.75rem;font-weight:700;cursor:pointer}
+.btn{width:100%;background:var(--a);color:var(--bg);border:0;padding:9px;border-radius:7px;font-weight:700;font-size:.83rem;cursor:pointer;margin-bottom:10px}
+textarea{font-family:monospace;font-size:.84rem;padding-right:68px;margin-bottom:3px}
+.info{display:flex;justify-content:space-between;font-size:.72rem;color:var(--a)}
+</style>
+</head>
+<body>
+<div class="box">
+  <div class="top">
+    <h1>🎛️ Short-Tag Dynamic</h1>
+    <button class="cp" style="position:static" onclick="buildPlaylist()">🔄 Paket Baru</button>
+  </div>
+
+  <div class="card">
+    <label>0. Visual Video</label>
+    <select id="vis" onchange="setVis()">
+      <option value="Overcast Countryside|overcast ambient, nature">☁️ Langit Mendung & Lahan</option>
+      <option value="Rainy Window|rain soundscape, cozy ambient">🌧️ Hujan di Kaca Jendela</option>
+      <option value="Midnight Highway|night drive, dark atmospheric">🛣️ Perjalanan Malam</option>
+      <option value="Mountain Fog|misty nature, peaceful ambient">🌲 Kabut Pegunungan</option>
+      <option value="Ocean Sunset|sunset chillout, coastal breeze">🌊 Ombak Pantai & Senja</option>
+      <option value="Morning Coffee|cozy lofi, warm study beats">☕ Kopi & Meja Kerja</option>
+      <option value="custom">✍️ Ketik Visual Sendiri...</option>
+    </select>
+    <div id="cBox" style="display:none">
+      <input id="cT" placeholder="Judul Visual (Inggris), mis: Quiet River" oninput="buildPlaylist()">
+      <input id="cD" placeholder="Tag Suasana (2-3 kata), mis: peaceful river, nature" oninput="genPrompt()">
+    </div>
+
+    <label>1. Genre Musik</label>
+    <select id="gen" onchange="setInst()">
+      <option value="ambient soundscape">Ambient Soundscape</option>
+      <option value="chill lofi beats">Chill Lo-Fi Beats</option>
+      <option value="post-rock instrumental">Post-Rock Instrumental</option>
+      <option value="dark synthwave">Dark Synthwave / Cyberpunk</option>
+      <option value="reggae dub instrumental">Reggae Dub Instrumental</option>
+      <option value="deep house chill">Deep House Chill</option>
+    </select>
+
+    <label>2. Instrumen (Otomatis bergantian tiap Track)</label>
+    <div class="chips" id="chips"></div>
+
+    <div class="row">
+      <div>
+        <label>3. Mood</label>
+        <select id="mood" onchange="genPrompt()">
+          <option value="peaceful, relaxing">Peaceful & Relaxing</option>
+          <option value="melancholic, calm">Melancholic & Calm</option>
+          <option value="dark, driving">Dark & Driving</option>
+          <option value="warm, cozy">Warm & Cozy</option>
+        </select>
+      </div>
+      <div>
+        <label>4. Tempo</label>
+        <select id="tempo" onchange="genPrompt()">
+          <option value="65 bpm, slow tempo">Slow (65 BPM)</option>
+          <option value="85 bpm, mid-tempo">Medium (85 BPM)</option>
+          <option value="115 bpm, upbeat">Upbeat (115 BPM)</option>
+          <option value="free tempo, drone">Free Tempo</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="row" style="align-items:end;margin-bottom:4px">
+      <div>
+        <label>Track Aktif</label>
+        <select id="trackSel" onchange="selectTrack(this.value)" style="margin-bottom:10px"></select>
+      </div>
+      <div>
+        <button class="btn" onclick="nextTrack()">⏭️ Track Berikutnya</button>
+      </div>
+    </div>
+
+    <label>1. Nama File / Tracklist (Sinkron Playlist)</label>
+    <div class="rel">
+      <button class="cp" onclick="cp('tOut',this)">Salin</button>
+      <input id="tOut" readonly style="padding-right:68px;margin-bottom:2px">
+    </div>
+    <div class="info" style="margin-bottom:10px"><span>Untuk judul Suno & deskripsi YT</span><span id="tCnt">0/80</span></div>
+
+    <label>4. Gaya Musik (Otomatis Berubah Tiap Track)</label>
+    <div class="rel">
+      <button class="cp" onclick="cp('sOut',this)">Salin</button>
+      <textarea id="sOut" rows="3" readonly></textarea>
+    </div>
+    <div class="info"><span>Rotasi instrumen, tekstur & key tiap track</span><span id="sCnt">0/1000</span></div>
+  </div>
+
+  <div class="card" style="border-color:var(--a)">
+    <label style="color:var(--a)">📺 Master Playlist 15 Lagu (YouTube)</label>
+    <button class="btn" style="background:var(--b);color:#fff" onclick="buildPlaylist()">📋 Acak Ulang 15 Tracklist</button>
+    <div class="rel">
+      <button class="cp" onclick="cp('ytOut',this)">Salin</button>
+      <input id="ytOut" readonly style="padding-right:68px">
+    </div>
+    <div class="rel">
+      <button class="cp" onclick="cp('plOut',this)">Salin</button>
+      <textarea id="plOut" rows="8" readonly></textarea>
+    </div>
+  </div>
+</div>
+
+<script>
+const instDB={
+  "ambient soundscape":["synth pad","felt piano","rain texture","sub bass","cello","harp"],
+  "chill lofi beats":["acoustic guitar","rhodes piano","vinyl crackle","soft drums","mellow bass","flute"],
+  "post-rock instrumental":["ambient electric guitar","delay guitar","piano","tom drums","bass guitar","strings"],
+  "dark synthwave":["analog bass","industrial drums","arpeggiator synth","electric guitar","dark synth","brass"],
+  "reggae dub instrumental":["reggae guitar","dub bassline","rimshot drums","hammond organ","tape delay","melodica"],
+  "deep house chill":["warm bassline","soft kick","synth chords","plucked guitar","hi-hats","marimba"]
+};
+const adj=["Silent","Distant","Velvet","Fading","Golden","Midnight","Quiet","Misty","Hollow","Endless","Drifting","Solitary","Amber","Deep","Pale","Still","Echoing","Calm"];
+const noun=["Horizon","Echoes","Drift","Solitude","Whispers","Clouds","Reflections","Breeze","Shadows","Stillness","Twilight","Raindrops","Pathway","Memory","Pulse","Haven","Mist","Dusk"];
+const keys=["D minor","A minor","F major","C minor","E minor","G major","B minor","Eb major"];
+const textures=["warm analog","spacious reverb","minimalist","deep atmospheric","soft tape warmth","dreamy harmonic","intimate acoustic","lush layered"];
+let sel=[],tracks=[],curIdx=0;
+const rnd=a=>a[Math.floor(Math.random()*a.length)];
+
+function makeTitle(k){
+  const p=[()=>`${rnd(adj)} ${k}`,()=>`${k} ${rnd(noun)}`,()=>`${rnd(adj)} ${rnd(noun)}`,()=>`${rnd(noun)} of ${k}`];
+  return rnd(p)();
+}
+function getVis(){
+  const v=document.getElementById("vis").value;
+  if(v==="custom")return{t:document.getElementById("cT").value.trim()||"Horizon",d:document.getElementById("cD").value.trim()||"ambient"};
+  const p=v.split("|");return{t:p[0],d:p[1]};
+}
+function setVis(){
+  document.getElementById("cBox").style.display=document.getElementById("vis").value==="custom"?"block":"none";
+  buildPlaylist();
+}
+function renderChips(){
+  const g=document.getElementById("gen").value,box=document.getElementById("chips");
+  box.innerHTML="";const l=instDB[g]||[];
+  l.forEach(x=>{
+    const d=document.createElement("div");
+    d.className="chip"+(sel.includes(x)?" active":"");d.textContent=x;
+    d.onclick=()=>{sel=sel.includes(x)?sel.filter(i=>i!==x):[...sel,x];d.classList.toggle("active");genPrompt()};
+    box.appendChild(d);
+  });
+}
+function rotateInstruments(idx){
+  const g=document.getElementById("gen").value,l=instDB[g]||[];
+  if(!l.length)return;
+  const i1=idx%l.length;
+  const i2=(idx+1)%l.length;
+  const i3=(idx+3)%l.length;
+  sel=[...new Set([l[i1],l[i2],l[i3]])];
+  renderChips();
+}
+function setInst(){
+  rotateInstruments(0);
+  buildPlaylist();
+}
+function buildPlaylist(){
+  const v=getVis(),g=document.getElementById("gen").value;
+  document.getElementById("ytOut").value=`${v.t} — ${g.toUpperCase()} Mix for Deep Focus, Sleep & Relaxation [1 Hour]`;
+  const u=new Set();tracks=[];let c=0;
+  while(tracks.length<15&&c<120){
+    c++;const t=makeTitle(v.t).slice(0,80);
+    if(!u.has(t)){u.add(t);tracks.push(t);}
+  }
+  const selEl=document.getElementById("trackSel");
+  selEl.innerHTML="";
+  tracks.forEach((t,i)=>{
+    const o=document.createElement("option");
+    o.value=i;o.textContent=`Track ${String(i+1).padStart(2,"0")}: ${t}`;
+    selEl.appendChild(o);
+  });
+  document.getElementById("plOut").value=tracks.map((t,i)=>`${String(i+1).padStart(2,"0")}. ${t}`).join("\n");
+  selectTrack(0);
+}
+function selectTrack(idx){
+  curIdx=parseInt(idx,10)||0;
+  document.getElementById("trackSel").value=curIdx;
+  const title=tracks[curIdx]||"";
+  document.getElementById("tOut").value=title;
+  document.getElementById("tCnt").textContent=title.length+"/80";
+  rotateInstruments(curIdx);
+  genPrompt();
+}
+function nextTrack(){selectTrack((curIdx+1)%tracks.length)}
+function genPrompt(){
+  const v=getVis(),g=document.getElementById("gen").value,m=document.getElementById("mood").value,tp=document.getElementById("tempo").value;
+  const it=sel.length?sel.join(", "):"synth pad, piano";
+  const curK=keys[curIdx%keys.length];
+  const curTex=textures[curIdx%textures.length];
+  const st=`${g}, ${it}, ${curTex}, ${m}, ${tp}, ${curK}, ${v.d}, instrumental`.slice(0,1000);
+  document.getElementById("sOut").value=st;
+  document.getElementById("sCnt").textContent=st.length+"/1000";
+}
+function cp(id,b){
+  const e=document.getElementById(id);e.select();e.setSelectionRange(0,99999);
+  navigator.clipboard.writeText(e.value);const o=b.textContent;b.textContent="OK!";setTimeout(()=>b.textContent=o,1200);
+}
+setVis();setInst();
+</script>
+</body>
+  </html>
