@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Global Ambient Shorts Maker (9:16)</title>
+<style>
+:root{--bg:#0f172a;--c:#1e293b;--b:#334155;--p:#38bdf8;--a:#10b981;--t:#f1f5f9;--m:#94a3b8}
+*{box-sizing:border-box;font-family:system-ui,sans-serif}
+body{background:var(--bg);color:var(--t);margin:0;padding:12px}
+.box{max-width:520px;margin:auto}
+h1{font-size:1.05rem;color:var(--p);margin:0 0 10px}
+.card{background:var(--c);border:1px solid var(--b);border-radius:10px;padding:12px;margin-bottom:12px}
+label{display:block;font-size:.73rem;font-weight:700;color:var(--m);margin-bottom:5px;text-transform:uppercase}
+input[type=file],select,textarea{width:100%;background:var(--bg);border:1px solid var(--b);color:var(--t);padding:8px;border-radius:7px;font-size:.85rem;margin-bottom:10px}
+input[type=range]{width:100%;accent-color:var(--p);margin-bottom:8px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.btn{width:100%;background:var(--a);color:var(--bg);border:0;padding:10px;border-radius:8px;font-weight:700;font-size:.88rem;cursor:pointer;margin-top:4px}
+.btn:disabled{background:var(--b);color:var(--m);cursor:not-allowed}
+.btn-sub{background:var(--p);color:var(--bg);border:0;padding:6px 10px;border-radius:6px;font-size:.76rem;font-weight:700;cursor:pointer;margin-bottom:8px}
+.prev-wrap{display:flex;justify-content:center;background:#000;border-radius:10px;padding:8px;margin-bottom:10px}
+canvas{width:240px;height:426px;border-radius:8px;border:1px solid var(--b);background:#090d16}
+.val{color:var(--p);font-weight:700;float:right}
+#status{font-size:.8rem;color:var(--a);text-align:center;margin-top:8px;font-weight:600}
+</style>
+</head>
+<body>
+<div class="box">
+  <h1>📱 Global Ambient Shorts Maker (9:16)</h1>
+
+  <div class="card">
+    <div class="row">
+      <div>
+        <label>1. Video Latar (MP4)</label>
+        <input type="file" id="vFile" accept="video/*">
+      </div>
+      <div>
+        <label>2. Musik Instrumental (MP3)</label>
+        <input type="file" id="aFile" accept="audio/*">
+      </div>
+    </div>
+
+    <label>Potong Detik Mulai Video <span class="val" id="vStartLbl">0.0 dtk</span></label>
+    <input type="range" id="vStart" min="0" max="60" step="0.5" value="0" oninput="seekVid()">
+
+    <label>Potong Detik Mulai Musik (Ambil Bagian Paling Enak) <span class="val" id="aStartLbl">0 dtk</span></label>
+    <input type="range" id="aStart" min="0" max="180" step="1" value="30" oninput="updLbl()">
+
+    <div class="row">
+      <div>
+        <label>Durasi Shorts</label>
+        <select id="dur">
+          <option value="15">15 Detik (Retensi Tinggi)</option>
+          <option value="25" selected>25 Detik (Ideal Motivasi)</option>
+          <option value="40">40 Detik (Deep Calm)</option>
+        </select>
+      </div>
+      <div>
+        <label>Kecerahan Latar</label>
+        <select id="dark" onchange="drawFrame()">
+          <option value="0.45" selected>Gelap 45% (Teks Jelas)</option>
+          <option value="0.30">Gelap 30% (Natural)</option>
+          <option value="0.60">Gelap 60% (Kontras Tinggi)</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <label>3. Teks Motivasi Global (Inggris)</label>
+      <button class="btn-sub" onclick="randomQuote()">✨ Acak Kutipan</button>
+    </div>
+    <textarea id="qText" rows="3" oninput="drawFrame()">Protect your peace. Not everything deserves your energy or reaction.</textarea>
+    <input type="text" id="subText" value="Full 40-Min Soundscape in Bio • Cadas Resonance" oninput="drawFrame()" style="width:100%;background:var(--bg);border:1px solid var(--b);color:var(--t);padding:8px;border-radius:7px;font-size:.8rem">
+  </div>
+
+  <div class="card">
+    <label style="text-align:center">Preview Vertikal 9:16 (Safe Zone)</label>
+    <div class="prev-wrap">
+      <canvas id="cv" width="720" height="1280"></canvas>
+    </div>
+    <button class="btn" id="recBtn" onclick="startRender()">🎬 Render & Download Video Shorts</button>
+    <div id="status">Pilih file video & audio untuk memulai</div>
+  </div>
+</div>
+
+<video id="vid" muted playsinline crossorigin="anonymous" style="display:none"></video>
+<audio id="aud" crossorigin="anonymous" style="display:none"></audio>
+
+<script>
+const quotes=[
+  "Protect your peace. Not everything deserves your energy or reaction.",
+  "Slow down. You don't have to figure out your whole life tonight.",
+  "Rest is not laziness. Sometimes the most productive thing you can do is breathe.",
+  "Distance yourself from noise until you can hear your own thoughts again.",
+  "You survived 100% of your hardest days. Keep moving quietly.",
+  "Let go of what you cannot control. Peace begins where expectation ends.",
+  "Stop rushing. What is meant for you will never require you to lose yourself.",
+  "Heal in silence. Grow in private. Let your peace speak for itself."
+];
+const cv=document.getElementById("cv"),ctx=cv.getContext("2d");
+const vid=document.getElementById("vid"),aud=document.getElementById("aud");
+let isRecording=false,animId=null;
+
+function randomQuote(){
+  document.getElementById("qText").value=quotes[Math.floor(Math.random()*quotes.length)];
+  drawFrame();
+}
+function updLbl(){
+  document.getElementById("vStartLbl").textContent=document.getElementById("vStart").value+" dtk";
+  document.getElementById("aStartLbl").textContent=document.getElementById("aStart").value+" dtk";
+}
+function seekVid(){
+  updLbl();
+  if(vid.duration){
+    vid.currentTime=parseFloat(document.getElementById("vStart").value)||0;
+  }
+}
+
+document.getElementById("vFile").onchange=e=>{
+  const f=e.target.files[0];if(!f)return;
+  vid.src=URL.createObjectURL(f);
+  vid.onloadedmetadata=()=>{
+    document.getElementById("vStart").max=Math.max(0,Math.floor(vid.duration-2));
+    vid.currentTime=0;
+  };
+  vid.onseeked=()=>drawFrame();
+};
+
+document.getElementById("aFile").onchange=e=>{
+  const f=e.target.files[0];if(!f)return;
+  aud.src=URL.createObjectURL(f);
+  aud.onloadedmetadata=()=>{
+    document.getElementById("aStart").max=Math.max(0,Math.floor(aud.duration-15));
+    document.getElementById("status").textContent="Siap! Atur detik potong lalu tekan Render.";
+  };
+};
+
+function wrapText(text,maxW){
+  const words=text.split(" "),lines=[];let cur="";
+  words.forEach(w=>{
+    const test=cur?cur+" "+w:w;
+    if(ctx.measureText(test).width>maxW&&cur){lines.push(cur);cur=w;}
+    else cur=test;
+  });
+  if(cur)lines.push(cur);
+  return lines;
+}
+
+function drawFrame(zoom=1){
+  const W=cv.width,H=cv.height;
+  ctx.fillStyle="#090d16";ctx.fillRect(0,0,W,H);
+
+  // Gambar video dengan crop 9:16 + efek zoom halus
+  if(vid.readyState>=2){
+    const vw=vid.videoWidth,vh=vid.videoHeight;
+    const scale=Math.max(W/vw,H/vh)*zoom;
+    const dw=vw*scale,dh=vh*scale;
+    ctx.drawImage(vid,(W-dw)/2,(H-dh)/2,dw,dh);
+  }
+
+  // Lapisan gelap agar teks putih sangat terbaca
+  ctx.fillStyle=`rgba(0,0,0,${document.getElementById("dark").value})`;
+  ctx.fillRect(0,0,W,H);
+
+  // Garis aksen tipis di atas & bawah teks
+  ctx.strokeStyle="rgba(255,255,255,0.45)";
+  ctx.lineWidth=2;
+  ctx.beginPath();ctx.moveTo(W*0.35,H*0.36);ctx.lineTo(W*0.65,H*0.36);ctx.stroke();
+
+  // Teks Motivasi Utama
+  ctx.fillStyle="#ffffff";
+  ctx.textAlign="center";
+  ctx.textBaseline="middle";
+  ctx.font="600 44px Georgia, serif";
+  ctx.shadowColor="rgba(0,0,0,0.85)";
+  ctx.shadowBlur=14;
+  const q=document.getElementById("qText").value.trim();
+  const lines=wrapText(q,W*0.80);
+  const lineH=62;
+  const startY=(H*0.48)-((lines.length-1)*lineH)/2;
+  lines.forEach((ln,i)=>ctx.fillText(ln,W/2,startY+i*lineH));
+
+  // Watermark / Call to Action ke video panjang (Safe Zone atas UI Shorts)
+  ctx.font="500 22px system-ui, sans-serif";
+  ctx.fillStyle="rgba(255,255,255,0.75)";
+  ctx.fillText(document.getElementById("subText").value,W/2,H*0.76);
+  ctx.shadowBlur=0;
+}
+
+async function startRender(){
+  if(!vid.src||!aud.src){alert("Pilih file Video (MP4) dan Musik (MP3) dulu!");return;}
+  const btn=document.getElementById("recBtn"),st=document.getElementById("status");
+  btn.disabled=true;isRecording=true;
+
+  const dur=parseInt(document.getElementById("dur").value,10);
+  const vStart=parseFloat(document.getElementById("vStart").value)||0;
+  const aStart=parseFloat(document.getElementById("aStart").value)||0;
+
+  // Gabungkan stream Canvas + Audio
+  const ac=new (window.AudioContext||window.webkitAudioContext)();
+  const srcNode=ac.createMediaElementSource(aud);
+  const dest=ac.createMediaStreamDestination();
+  srcNode.connect(dest);
+  srcNode.connect(ac.destination);
+
+  const canvasStream=cv.captureStream(30);
+  const combined=new MediaStream([...canvasStream.getVideoTracks(),...dest.stream.getAudioTracks()]);
+  const chunks=[];
+  const recorder=new MediaRecorder(combined,{mimeType:"video/webm;codecs=vp8,opus",videoBitsPerSecond:3500000});
+
+  recorder.ondataavailable=e=>{if(e.data.size>0)chunks.push(e.data)};
+  recorder.onstop=()=>{
+    const blob=new Blob(chunks,{type:"video/webm"});
+    const a=document.createElement("a");
+    a.href=URL.createObjectURL(blob);
+    a.download=`Shorts_Motivation_${Date.now()}.webm`;
+    a.click();
+    st.textContent="Selesai! File video Shorts otomatis terunduh.";
+    btn.disabled=false;isRecording=false;
+    vid.pause();aud.pause();
+  };
+
+  vid.currentTime=vStart;
+  aud.currentTime=aStart;
+  await vid.play();
+  await aud.play();
+  recorder.start();
+
+  const t0=performance.now();
+  function loop(now){
+    if(!isRecording)return;
+    const elapsed=(now-t0)/1000;
+    if(vid.ended||vid.currentTime>=vid.duration-0.2)vid.currentTime=vStart;
+    const zoom=1+(elapsed/dur)*0.08; // Efek zoom-in perlahan
+    drawFrame(zoom);
+    st.textContent=`Merekam Shorts: ${Math.min(dur,elapsed).toFixed(1)} / ${dur} detik...`;
+    if(elapsed>=dur){
+      recorder.stop();
+      return;
+    }
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+}
+drawFrame();
+</script>
+</body>
+  </html>
