@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Global Ambient Shorts Maker (9:16)</title>
+<title>Global Ambient Shorts Maker (Auto-Hook 9:16)</title>
 <style>
 :root{--bg:#0f172a;--c:#1e293b;--b:#334155;--p:#38bdf8;--a:#10b981;--t:#f1f5f9;--m:#94a3b8}
 *{box-sizing:border-box;font-family:system-ui,sans-serif}
@@ -12,12 +12,13 @@ body{background:var(--bg);color:var(--t);margin:0;padding:12px}
 h1{font-size:1.05rem;color:var(--p);margin:0 0 10px}
 .card{background:var(--c);border:1px solid var(--b);border-radius:10px;padding:12px;margin-bottom:12px}
 label{display:block;font-size:.73rem;font-weight:700;color:var(--m);margin-bottom:5px;text-transform:uppercase}
-input[type=file],select,textarea{width:100%;background:var(--bg);border:1px solid var(--b);color:var(--t);padding:8px;border-radius:7px;font-size:.85rem;margin-bottom:10px}
+input[type=file],select,textarea,input[type=text]{width:100%;background:var(--bg);border:1px solid var(--b);color:var(--t);padding:8px;border-radius:7px;font-size:.85rem;margin-bottom:10px}
 input[type=range]{width:100%;accent-color:var(--p);margin-bottom:8px}
 .row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .btn{width:100%;background:var(--a);color:var(--bg);border:0;padding:10px;border-radius:8px;font-weight:700;font-size:.88rem;cursor:pointer;margin-top:4px}
 .btn:disabled{background:var(--b);color:var(--m);cursor:not-allowed}
 .btn-sub{background:var(--p);color:var(--bg);border:0;padding:6px 10px;border-radius:6px;font-size:.76rem;font-weight:700;cursor:pointer;margin-bottom:8px}
+.btn-auto{width:100%;background:#f59e0b;color:#0f172a;border:0;padding:8px;border-radius:7px;font-weight:800;font-size:.8rem;cursor:pointer;margin-bottom:10px}
 .prev-wrap{display:flex;justify-content:center;background:#000;border-radius:10px;padding:8px;margin-bottom:10px}
 canvas{width:240px;height:426px;border-radius:8px;border:1px solid var(--b);background:#090d16}
 .val{color:var(--p);font-weight:700;float:right}
@@ -27,11 +28,11 @@ canvas{width:240px;height:426px;border-radius:8px;border:1px solid var(--b);back
 <body>
 <div class="box">
   <div style="display:flex;gap:8px;margin-bottom:12px">
-  <a href="index.html" style="flex:1;text-align:center;background:#1e293b;color:#f1f5f9;border:1px solid #334155;padding:8px;border-radius:8px;font-weight:700;text-decoration:none;font-size:.82rem">🎵 Generator Musik</a>
-  <a href="shorts.html" style="flex:1;text-align:center;background:#38bdf8;color:#0f172a;padding:8px;border-radius:8px;font-weight:700;text-decoration:none;font-size:.82rem">📱 Pembuat Shorts</a>
+    <a href="index.html" style="flex:1;text-align:center;background:#1e293b;color:#f1f5f9;border:1px solid #334155;padding:8px;border-radius:8px;font-weight:700;text-decoration:none;font-size:.82rem">🎵 Generator Musik</a>
+    <a href="shorts.html" style="flex:1;text-align:center;background:#38bdf8;color:#0f172a;padding:8px;border-radius:8px;font-weight:700;text-decoration:none;font-size:.82rem">📱 Pembuat Shorts</a>
   </div>
-  
-  <h1>📱 Global Ambient Shorts Maker (9:16)</h1>
+
+  <h1>📱 Global Ambient Shorts Maker (Auto-Hook)</h1>
 
   <div class="card">
     <div class="row">
@@ -45,18 +46,20 @@ canvas{width:240px;height:426px;border-radius:8px;border:1px solid var(--b);back
       </div>
     </div>
 
-    <label>Potong Detik Mulai Video <span class="val" id="vStartLbl">0.0 dtk</span></label>
+    <button class="btn-auto" id="autoBtn" onclick="autoDetectBest()">⚡ Cari Otomatis Klip & Puncak Musik Terbaik</button>
+
+    <label>Detik Mulai Video (Visual Terbaik) <span class="val" id="vStartLbl">0.0 dtk</span></label>
     <input type="range" id="vStart" min="0" max="60" step="0.5" value="0" oninput="seekVid()">
 
-    <label>Potong Detik Mulai Musik (Ambil Bagian Paling Enak) <span class="val" id="aStartLbl">0 dtk</span></label>
+    <label>Detik Mulai Musik (Puncak Melodi) <span class="val" id="aStartLbl">30 dtk</span></label>
     <input type="range" id="aStart" min="0" max="180" step="1" value="30" oninput="updLbl()">
 
     <div class="row">
       <div>
         <label>Durasi Shorts</label>
         <select id="dur">
-          <option value="15">15 Detik (Retensi Tinggi)</option>
-          <option value="25" selected>25 Detik (Ideal Motivasi)</option>
+          <option value="15" selected>15 Detik (Hook Cepat)</option>
+          <option value="25">25 Detik (Ideal Motivasi)</option>
           <option value="40">40 Detik (Deep Calm)</option>
         </select>
       </div>
@@ -73,11 +76,11 @@ canvas{width:240px;height:426px;border-radius:8px;border:1px solid var(--b);back
 
   <div class="card">
     <div style="display:flex;justify-content:space-between;align-items:center">
-      <label>3. Teks Motivasi Global (Inggris)</label>
-      <button class="btn-sub" onclick="randomQuote()">✨ Acak Kutipan</button>
+      <label>3. Teks Hook & Motivasi Global</label>
+      <button class="btn-sub" onclick="randomQuote()">✨ Acak Hook</button>
     </div>
-    <textarea id="qText" rows="3" oninput="drawFrame()">Protect your peace. Not everything deserves your energy or reaction.</textarea>
-    <input type="text" id="subText" value="Full 40-Min Soundscape in Bio • Cadas Resonance" oninput="drawFrame()" style="width:100%;background:var(--bg);border:1px solid var(--b);color:var(--t);padding:8px;border-radius:7px;font-size:.8rem">
+    <textarea id="qText" rows="3" oninput="drawFrame()">Stop overthinking tonight. | Your mind deserves a quiet place to rest.</textarea>
+    <input type="text" id="subText" value="Full 40-Min Soundscape in Related Video • Cadas Resonance" oninput="drawFrame()" style="font-size:.78rem">
   </div>
 
   <div class="card">
@@ -94,22 +97,23 @@ canvas{width:240px;height:426px;border-radius:8px;border:1px solid var(--b);back
 <audio id="aud" crossorigin="anonymous" style="display:none"></audio>
 
 <script>
-const quotes=[
-  "Protect your peace. Not everything deserves your energy or reaction.",
-  "Slow down. You don't have to figure out your whole life tonight.",
-  "Rest is not laziness. Sometimes the most productive thing you can do is breathe.",
-  "Distance yourself from noise until you can hear your own thoughts again.",
-  "You survived 100% of your hardest days. Keep moving quietly.",
-  "Let go of what you cannot control. Peace begins where expectation ends.",
-  "Stop rushing. What is meant for you will never require you to lose yourself.",
-  "Heal in silence. Grow in private. Let your peace speak for itself."
+// Format: "Kalimat Hook (2 detik pertama) | Kalimat Penenang Utama"
+const hooks=[
+  "Stop overthinking tonight. | Your mind deserves a quiet place to rest.",
+  "Read this if you feel exhausted. | You don't have to carry everything alone.",
+  "Protect your peace at all costs. | Not everything deserves your energy.",
+  "Slow down for 15 seconds. | Breathe in calm, let go of the noise.",
+  "Listen closely to this silence. | Healing begins when you stop rushing.",
+  "You survived your hardest days. | Let tonight be your moment of stillness.",
+  "Distance yourself from chaos. | Peace begins where expectation ends."
 ];
+
 const cv=document.getElementById("cv"),ctx=cv.getContext("2d");
 const vid=document.getElementById("vid"),aud=document.getElementById("aud");
-let isRecording=false,animId=null;
+let isRecording=false,audioBufferCache=null;
 
 function randomQuote(){
-  document.getElementById("qText").value=quotes[Math.floor(Math.random()*quotes.length)];
+  document.getElementById("qText").value=hooks[Math.floor(Math.random()*hooks.length)];
   drawFrame();
 }
 function updLbl(){
@@ -118,9 +122,7 @@ function updLbl(){
 }
 function seekVid(){
   updLbl();
-  if(vid.duration){
-    vid.currentTime=parseFloat(document.getElementById("vStart").value)||0;
-  }
+  if(vid.duration)vid.currentTime=parseFloat(document.getElementById("vStart").value)||0;
 }
 
 document.getElementById("vFile").onchange=e=>{
@@ -133,14 +135,86 @@ document.getElementById("vFile").onchange=e=>{
   vid.onseeked=()=>drawFrame();
 };
 
-document.getElementById("aFile").onchange=e=>{
+document.getElementById("aFile").onchange=async e=>{
   const f=e.target.files[0];if(!f)return;
   aud.src=URL.createObjectURL(f);
-  aud.onloadedmetadata=()=>{
-    document.getElementById("aStart").max=Math.max(0,Math.floor(aud.duration-15));
-    document.getElementById("status").textContent="Siap! Atur detik potong lalu tekan Render.";
-  };
+  document.getElementById("status").textContent="Menganalisis gelombang musik...";
+  try{
+    const arr=await f.arrayBuffer();
+    const actx=new (window.AudioContext||window.webkitAudioContext)();
+    audioBufferCache=await actx.decodeAudioData(arr);
+    document.getElementById("aStart").max=Math.max(0,Math.floor(audioBufferCache.duration-15));
+    autoFindAudioPeak();
+  }catch(err){
+    document.getElementById("status").textContent="Audio dimuat. Siap atur titik potong.";
+  }
 };
+
+// Memindai energi gelombang audio untuk mencari bagian melodi paling penuh/enak
+function autoFindAudioPeak(){
+  if(!audioBufferCache)return;
+  const data=audioBufferCache.getChannelData(0);
+  const sr=audioBufferCache.sampleRate;
+  const dur=parseInt(document.getElementById("dur").value,10)||15;
+  const totalSec=Math.floor(audioBufferCache.duration);
+  // Hindari 12 detik pertama (intro sepi) dan 15 detik terakhir (outro)
+  const minS=Math.min(12,Math.floor(totalSec*0.1));
+  const maxS=Math.max(minS+1,totalSec-dur-5);
+  let bestSec=minS,bestScore=-1;
+
+  for(let s=minS;s<=maxS;s+=2){
+    let sum=0;
+    const startIdx=s*sr;
+    const endIdx=Math.min(data.length,(s+dur)*sr);
+    for(let i=startIdx;i<endIdx;i+=100){
+      sum+=data[i]*data[i];
+    }
+    const rms=Math.sqrt(sum/((endIdx-startIdx)/100));
+    if(rms>bestScore){bestScore=rms;bestSec=s;}
+  }
+  document.getElementById("aStart").value=bestSec;
+  updLbl();
+  document.getElementById("status").textContent=`⚡ Puncak musik terdeteksi otomatis di detik ke-${bestSec}!`;
+}
+
+// Memindai beberapa titik video untuk mencari kontras cahaya/langit terbaik
+async function autoDetectBest(){
+  if(audioBufferCache)autoFindAudioPeak();
+  if(!vid.duration){
+    alert("Pilih file Video (MP4) terlebih dahulu!");
+    return;
+  }
+  const st=document.getElementById("status");
+  st.textContent="Memindai visual video paling dramatis...";
+  const maxV=Math.max(1,Math.floor(vid.duration-3));
+  const steps=5;
+  let bestTime=0,bestContrast=-1;
+  const tmpCv=document.createElement("canvas");
+  tmpCv.width=160;tmpCv.height=90;
+  const tctx=tmpCv.getContext("2d");
+
+  for(let i=0;i<steps;i++){
+    const t=Math.floor((maxV/steps)*i);
+    await new Promise(res=>{
+      vid.currentTime=t;
+      vid.onseeked=()=>res();
+    });
+    tctx.drawImage(vid,0,0,160,90);
+    const px=tctx.getImageData(0,0,160,90).data;
+    let mean=0,variance=0;
+    for(let p=0;p<px.length;p+=16)mean+=(px[p]+px[p+1]+px[p+2])/3;
+    mean/=(px.length/16);
+    for(let p=0;p<px.length;p+=16){
+      const lum=(px[p]+px[p+1]+px[p+2])/3;
+      variance+=(lum-mean)*(lum-mean);
+    }
+    if(variance>bestContrast){bestContrast=variance;bestTime=t;}
+  }
+  document.getElementById("vStart").value=bestTime;
+  vid.currentTime=bestTime;
+  updLbl();
+  st.textContent=`⚡ Klip terbaik dipilih: Video ${bestTime} dtk & Puncak Musik ${document.getElementById("aStart").value} dtk!`;
+}
 
 function wrapText(text,maxW){
   const words=text.split(" "),lines=[];let cur="";
@@ -153,11 +227,10 @@ function wrapText(text,maxW){
   return lines;
 }
 
-function drawFrame(zoom=1){
+function drawFrame(zoom=1,elapsed=99){
   const W=cv.width,H=cv.height;
   ctx.fillStyle="#090d16";ctx.fillRect(0,0,W,H);
 
-  // Gambar video dengan crop 9:16 + efek zoom halus
   if(vid.readyState>=2){
     const vw=vid.videoWidth,vh=vid.videoHeight;
     const scale=Math.max(W/vw,H/vh)*zoom;
@@ -165,31 +238,46 @@ function drawFrame(zoom=1){
     ctx.drawImage(vid,(W-dw)/2,(H-dh)/2,dw,dh);
   }
 
-  // Lapisan gelap agar teks putih sangat terbaca
   ctx.fillStyle=`rgba(0,0,0,${document.getElementById("dark").value})`;
   ctx.fillRect(0,0,W,H);
 
-  // Garis aksen tipis di atas & bawah teks
-  ctx.strokeStyle="rgba(255,255,255,0.45)";
-  ctx.lineWidth=2;
-  ctx.beginPath();ctx.moveTo(W*0.35,H*0.36);ctx.lineTo(W*0.65,H*0.36);ctx.stroke();
+  // Pisahkan bagian Hook (sebelum tanda |) dan Isi Utama (setelah tanda |)
+  const raw=document.getElementById("qText").value.trim();
+  const parts=raw.split("|");
+  const hookLine=parts[0]?parts[0].trim():"";
+  const bodyLine=parts[1]?parts[1].trim():"";
 
-  // Teks Motivasi Utama
-  ctx.fillStyle="#ffffff";
   ctx.textAlign="center";
   ctx.textBaseline="middle";
+  ctx.shadowColor="rgba(0,0,0,0.9)";
+  ctx.shadowBlur=16;
+
+  // Tampilkan Hook Atas dengan warna aksen emas lembut (langsung muncul di detik 0)
+  if(hookLine){
+    ctx.fillStyle="#fde047";
+    ctx.font="700 42px system-ui, sans-serif";
+    const hLines=wrapText(hookLine,W*0.82);
+    hLines.forEach((ln,i)=>ctx.fillText(ln,W/2,H*0.36+(i*52)));
+  }
+
+  // Garis pemisah tipis
+  ctx.strokeStyle="rgba(255,255,255,0.4)";
+  ctx.lineWidth=2;
+  ctx.beginPath();ctx.moveTo(W*0.35,H*0.43);ctx.lineTo(W*0.65,H*0.43);ctx.stroke();
+
+  // Kalimat Utama (muncul halus setelah 1.2 detik untuk menjaga retensi penonton)
+  const alpha=elapsed<1.2?Math.max(0.15,elapsed/1.2):1;
+  ctx.fillStyle=`rgba(255,255,255,${alpha})`;
   ctx.font="600 44px Georgia, serif";
-  ctx.shadowColor="rgba(0,0,0,0.85)";
-  ctx.shadowBlur=14;
-  const q=document.getElementById("qText").value.trim();
-  const lines=wrapText(q,W*0.80);
+  const mainText=bodyLine||hookLine;
+  const lines=wrapText(mainText,W*0.80);
   const lineH=62;
-  const startY=(H*0.48)-((lines.length-1)*lineH)/2;
+  const startY=(H*0.53)-((lines.length-1)*lineH)/2;
   lines.forEach((ln,i)=>ctx.fillText(ln,W/2,startY+i*lineH));
 
-  // Watermark / Call to Action ke video panjang (Safe Zone atas UI Shorts)
+  // Call to Action di Safe Zone atas UI Shorts
   ctx.font="500 22px system-ui, sans-serif";
-  ctx.fillStyle="rgba(255,255,255,0.75)";
+  ctx.fillStyle="rgba(255,255,255,0.78)";
   ctx.fillText(document.getElementById("subText").value,W/2,H*0.76);
   ctx.shadowBlur=0;
 }
@@ -203,7 +291,6 @@ async function startRender(){
   const vStart=parseFloat(document.getElementById("vStart").value)||0;
   const aStart=parseFloat(document.getElementById("aStart").value)||0;
 
-  // Gabungkan stream Canvas + Audio
   const ac=new (window.AudioContext||window.webkitAudioContext)();
   const srcNode=ac.createMediaElementSource(aud);
   const dest=ac.createMediaStreamDestination();
@@ -220,9 +307,9 @@ async function startRender(){
     const blob=new Blob(chunks,{type:"video/webm"});
     const a=document.createElement("a");
     a.href=URL.createObjectURL(blob);
-    a.download=`Shorts_Motivation_${Date.now()}.webm`;
+    a.download=`Shorts_Hook_${Date.now()}.webm`;
     a.click();
-    st.textContent="Selesai! File video Shorts otomatis terunduh.";
+    st.textContent="Selesai! Video Shorts dengan Auto-Hook otomatis terunduh.";
     btn.disabled=false;isRecording=false;
     vid.pause();aud.pause();
   };
@@ -238,8 +325,8 @@ async function startRender(){
     if(!isRecording)return;
     const elapsed=(now-t0)/1000;
     if(vid.ended||vid.currentTime>=vid.duration-0.2)vid.currentTime=vStart;
-    const zoom=1+(elapsed/dur)*0.08; // Efek zoom-in perlahan
-    drawFrame(zoom);
+    const zoom=1+(elapsed/dur)*0.09;
+    drawFrame(zoom,elapsed);
     st.textContent=`Merekam Shorts: ${Math.min(dur,elapsed).toFixed(1)} / ${dur} detik...`;
     if(elapsed>=dur){
       recorder.stop();
@@ -252,4 +339,4 @@ async function startRender(){
 drawFrame();
 </script>
 </body>
-  </html>
+</html>
