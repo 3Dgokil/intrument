@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cadas Resonance Studio — Smooth 720p</title>
+  <style>
+    :root {
+      --bg: #0b1120; --card: #131c31; --border: #24324d;
+      --text: #f1f5f9; --muted: #94a3b8; --accent: #38bdf8;
+      --gold: #facc15;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Roboto, Arial, sans-serif; }
+    body { background: var(--bg); color: var(--text); padding: 14px; max-width: 560px; margin: 0 auto; }
+    h1 { font-size: 1.1rem; font-weight: 700; color: var(--accent); margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; }
+    .badge { font-size: 0.72rem; background: #1e293b; color: var(--gold); padding: 3px 8px; border-radius: 99px; border: 1px solid var(--border); }
+    .tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; background: #0f172a; padding: 5px; border-radius: 12px; border: 1px solid var(--border); }
+    .tab-btn { background: transparent; color: var(--muted); border: none; padding: 10px; border-radius: 9px; font-weight: 700; font-size: 0.85rem; cursor: pointer; }
+    .tab-btn.active { background: var(--accent); color: #082f49; }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 14px; margin-bottom: 14px; }
+    .label-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .step-title { font-size: 0.78rem; font-weight: 700; color: var(--muted); text-transform: uppercase; }
+    input[type="file"] { width: 100%; background: #0f172a; border: 1px dashed #334155; padding: 10px; border-radius: 10px; color: var(--text); font-size: 0.85rem; margin-bottom: 8px; }
+    textarea, input[type="text"], select {
+      width: 100%; background: #0f172a; border: 1px solid #334155; color: var(--text);
+      border-radius: 10px; padding: 10px 12px; font-size: 0.9rem; outline: none; margin-bottom: 10px;
+    }
+    textarea { resize: vertical; min-height: 74px; line-height: 1.4; }
+    .btn { border: none; border-radius: 10px; padding: 9px 14px; font-weight: 600; font-size: 0.84rem; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+    .btn-hook { background: var(--accent); color: #082f49; padding: 6px 12px; font-size: 0.8rem; }
+    .btn-primary { background: linear-gradient(135deg, #2563eb, #0ea5e9); color: #fff; width: 100%; padding: 12px; font-size: 0.94rem; margin-top: 6px; }
+    .btn-secondary { background: #1e293b; color: var(--text); border: 1px solid #334155; width: 100%; padding: 10px; margin-top: 8px; }
+    .controls-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 4px; }
+    .control-item label { display: block; font-size: 0.74rem; color: var(--muted); margin-bottom: 4px; }
+    input[type="range"] { width: 100%; accent-color: var(--accent); }
+    .preview-wrap { display: flex; flex-direction: column; align-items: center; }
+    canvas.short-canvas { width: 100%; max-width: 300px; aspect-ratio: 9 / 16; background: #020617; border-radius: 14px; border: 1px solid #334155; }
+    canvas.long-canvas { width: 100%; aspect-ratio: 16 / 9; background: #020617; border-radius: 12px; border: 1px solid #334155; }
+    .status-text { font-size: 0.82rem; color: var(--gold); text-align: center; margin-top: 8px; min-height: 18px; }
+    .track-list { font-size: 0.78rem; color: #cbd5e1; background: #0f172a; padding: 8px 10px; border-radius: 8px; max-height: 110px; overflow-y: auto; margin-top: 6px; }
+    video, audio { display: none; }
+  </style>
+</head>
+<body>
+  <h1>
+    <span>CADAS RESONANCE STUDIO</span>
+    <span class="badge">v2.4 • Smooth Anti-Lag</span>
+  </h1>
+
+  <div class="tabs">
+    <button class="tab-btn" onclick="switchTab('long', this)">🎬 Long Video (16:9)</button>
+    <button class="tab-btn active" onclick="switchTab('shorts', this)">📱 Shorts Maker (9:16)</button>
+  </div>
+
+  <!-- TAB 1: LONG VIDEO -->
+  <div id="tab-long" class="tab-panel">
+    <div class="card">
+      <div class="label-row"><span class="step-title">1. Video Latar & Playlist MP3</span></div>
+      <input type="file" id="longVideoInput" accept="video/*" />
+      <input type="file" id="longAudioInput" accept="audio/*" multiple />
+      <div id="longTrackList" class="track-list">Belum ada lagu dipilih.</div>
+    </div>
+    <div class="card">
+      <div class="label-row"><span class="step-title">2. Judul Kompilasi</span></div>
+      <input type="text" id="longTitle" value="OCEAN SUNSET CHILL BEATS — WAVES & LO-FI FOR STUDY & SLEEP" />
+    </div>
+    <div class="card preview-wrap">
+      <canvas id="longCanvas" class="long-canvas" width="1280" height="720"></canvas>
+      <div id="longStatus" class="status-text">Untuk kompilasi 1 jam, disarankan render via Termux agar anti-lag.</div>
+      <button type="button" class="btn btn-primary" id="longRenderBtn">🎬 Render Browser (16:9)</button>
+      <button type="button" class="btn btn-secondary" id="longPlayBtn">⏯️ Play / Pause Preview</button>
+    </div>
+  </div>
+
+  <!-- TAB 2: SHORTS MAKER (DEFAULT AKTIF) -->
+  <div id="tab-shorts" class="tab-panel active">
+    <div class="card">
+      <div class="label-row"><span class="step-title">1. Video Latar & Musik Latar (MP3)</span></div>
+      <label style="font-size:0.75rem;color:#94a3b8;">Video Latar (Ombak / Hujan):</label>
+      <input type="file" id="videoInput" accept="video/*" />
+      <label style="font-size:0.75rem;color:#94a3b8;">Musik Latar MP3:</label>
+      <input type="file" id="shortAudioInput" accept="audio/*" />
+      <div class="controls-grid">
+        <div class="control-item">
+          <label>Mulai Musik dari Detik ke: <span id="audioStartVal">0</span>s</label>
+          <input type="range" id="audioStart" min="0" max="180" value="0" />
+        </div>
+        <div class="control-item">
+          <label>Volume Musik: <span id="audioVolVal">100</span>%</label>
+          <input type="range" id="audioVol" min="0" max="100" value="100" />
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="label-row">
+        <span class="step-title">2. Teks Hook & Motivasi Global</span>
+        <button type="button" class="btn btn-hook" id="randomHookBtn">✨ Acak Hook</button>
+      </div>
+      <textarea id="hookText">You can't stop the waves,
+but you can learn to breathe through the storm.</textarea>
+
+      <div class="label-row"><span class="step-title">Teks CTA Bawah</span></div>
+      <input type="text" id="ctaText" value="55 min of ocean sunset chill beats below ↓" />
+
+      <div class="controls-grid">
+        <div class="control-item">
+          <label>Efek Partikel (Ringan)</label>
+          <select id="particleType">
+            <option value="fireflies" selected>✨ Kunang-Kunang Emas</option>
+            <option value="bokeh">☀️ Debu Cahaya (Bokeh)</option>
+            <option value="rain">🌧️ Gerimis Hujan</option>
+            <option value="snow">❄️ Salju Lembut</option>
+            <option value="none">🚫 Tanpa Partikel</option>
+          </select>
+        </div>
+        <div class="control-item">
+          <label>Jumlah Partikel: <span id="particleCountVal">28</span></label>
+          <input type="range" id="particleCount" min="10" max="60" value="28" />
+        </div>
+        <div class="control-item">
+          <label>Warna Teks Utama</label>
+          <select id="textColor">
+            <option value="#ffffff" selected>Putih Bersih</option>
+            <option value="#facc15">Kuning Emas Sunset</option>
+          </select>
+        </div>
+        <div class="control-item">
+          <label>Ukuran Teks Hook: <span id="fontSizeVal">38</span>px</label>
+          <input type="range" id="fontSize" min="26" max="52" value="38" />
+        </div>
+        <div class="control-item">
+          <label>Posisi Atas-Bawah: <span id="posYVal">48</span>%</label>
+          <input type="range" id="posY" min="25" max="68" value="48" />
+        </div>
+        <div class="control-item">
+          <label>Gelapkan Latar: <span id="dimVal">22</span>%</label>
+          <input type="range" id="dimBg" min="0" max="60" value="22" />
+        </div>
+      </div>
+    </div>
+
+    <div class="card preview-wrap">
+      <div class="label-row" style="width:100%;"><span class="step-title">3. Preview 720p 9:16 (Smooth Render)</span></div>
+      <canvas id="previewCanvas" class="short-canvas" width="720" height="1280"></canvas>
+      <div id="status" class="status-text">Unggah video latar & MP3 untuk mulai.</div>
+      <button type="button" class="btn btn-primary" id="renderBtn">🎬 Render & Unduh Video Shorts (Smooth)</button>
+      <button type="button" class="btn btn-secondary" id="togglePlayBtn">⏯️ Play / Pause Preview</button>
+    </div>
+  </div>
+
+  <video id="srcVideo" playsinline loop crossorigin="anonymous"></video>
+  <audio id="shortAudioPlayer" loop crossorigin="anonymous"></audio>
+  <video id="longSrcVideo" playsinline muted loop crossorigin="anonymous"></video>
+  <audio id="longAudioPlayer" crossorigin="anonymous"></audio>
+
+  <script>
+    function switchTab(name, btn) {
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById('tab-' + name).classList.add('active');
+      btn.classList.add('active');
+    }
+
+    /* PRE-RENDERED SPRITE PARTIKEL (ANTI-LAG GPU HP) */
+    function makeGlowSprite(innerColor, outerColor, radius) {
+      const c = document.createElement('canvas');
+      c.width = c.height = radius * 2;
+      const gCtx = c.getContext('2d');
+      const g = gCtx.createRadialGradient(radius, radius, 0, radius, radius, radius);
+      g.addColorStop(0, innerColor);
+      g.addColorStop(0.4, outerColor);
+      g.addColorStop(1, 'rgba(0,0,0,0)');
+      gCtx.fillStyle = g;
+      gCtx.fillRect(0, 0, radius * 2, radius * 2);
+      return c;
+    }
+
+    const sprites = {
+      fireflies: makeGlowSprite('rgba(255,251,235,1)', 'rgba(250,204,21,0.65)', 16),
+      bokeh: makeGlowSprite('rgba(254,243,199,0.75)', 'rgba(253,224,71,0.25)', 24),
+      snow: makeGlowSprite('rgba(255,255,255,0.95)', 'rgba(255,255,255,0.35)', 12)
+    };
+
+    const hooks = [
+      "You can't stop the waves,\nbut you can learn to breathe through the storm.",
+      "Be like the ocean.\nEven when waves crash against the rocks,\nit never loses its depth.",
+      "Disconnect from the rush.\nLet the tide wash away what was never meant to stay.",
+      "Slow down. Breathe in the salt air.\nNot everything needs to be figured out tonight.",
+      "Protect your energy. Heal quietly.\nLet the ocean remind you how vast life still is.",
+      "Some days, the most productive thing you can do\nis sit still and listen to the waves.",
+      "Even the heaviest rain doesn't last forever.\nSlow down, breathe, and let your mind rest tonight."
+    ];
+
+    const videoInput = document.getElementById('videoInput');
+    const shortAudioInput = document.getElementById('shortAudioInput');
+    const srcVideo = document.getElementById('srcVideo');
+    const shortAudioPlayer = document.getElementById('shortAudioPlayer');
+    const canvas = document.getElementById('previewCanvas');
+    const ctx = canvas.getContext('2d', { alpha: false });
+
+    const hookTextEl = document.getElementById('hookText');
+    const ctaTextEl = document.getElementById('ctaText');
+    const particleTypeEl = document.getElementById('particleType');
+    const particleCountEl = document.getElementById('particleCount');
+    const textColorEl = document.getElementById('textColor');
+    const fontSizeEl = document.getElementById('fontSize');
+    const posYEl = document.getElementById('posY');
+    const dimBgEl = document.getElementById('dimBg');
+    const audioStartEl = document.getElementById('audioStart');
+    const audioVolEl = document.getElementById('audioVol');
+    const statusEl = document.getElementById('status');
+    const renderBtn = document.getElementById('renderBtn');
+
+    let isVideoLoaded = false, isShortAudioLoaded = false, isRecording = false, particles = [];
+    let sAudioCtx, sDestStream, sGainNode, cachedLines = [], lastHookVal = '';
+
+    function initShortAudioGraph() {
+      if (sAudioCtx) return;
+      sAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      sDestStream = sAudioCtx.createMediaStreamDestination();
+      sGainNode = sAudioCtx.createGain();
+      sGainNode.gain.value = Number(audioVolEl.value) / 100;
+      sGainNode.connect(sAudioCtx.destination);
+      sGainNode.connect(sDestStream);
+      sAudioCtx.createMediaElementSource(shortAudioPlayer).connect(sGainNode);
+      sAudioCtx.createMediaElementSource(srcVideo).connect(sGainNode);
+    }
+
+    audioStartEl.addEventListener('input', () => {
+      document.getElementById('audioStartVal').textContent = audioStartEl.value;
+      if (isShortAudioLoaded) shortAudioPlayer.currentTime = Number(audioStartEl.value);
+    });
+    audioVolEl.addEventListener('input', () => {
+      document.getElementById('audioVolVal').textContent = audioVolEl.value;
+      if (sGainNode) sGainNode.gain.value = Number(audioVolEl.value) / 100;
+    });
+    fontSizeEl.addEventListener('input', () => { document.getElementById('fontSizeVal').textContent = fontSizeEl.value; lastHookVal = ''; });
+    posYEl.addEventListener('input', () => document.getElementById('posYVal').textContent = posYEl.value);
+    dimBgEl.addEventListener('input', () => document.getElementById('dimVal').textContent = dimBgEl.value);
+    particleCountEl.addEventListener('input', () => { document.getElementById('particleCountVal').textContent = particleCountEl.value; initParticles(); });
+    particleTypeEl.addEventListener('change', initParticles);
+
+    function createParticle(randomY = true) {
+      const W = 720, H = 1280, type = particleTypeEl.value;
+      return {
+        x: Math.random() * W,
+        y: randomY ? Math.random() * H : (type === 'rain' || type === 'snow' ? -15 : H + 15),
+        scale: 0.45 + Math.random() * 0.75,
+        speedY: type === 'rain' ? (12 + Math.random() * 8) : type === 'snow' ? (1.1 + Math.random() * 1.4) : (0.55 + Math.random() * 1.1),
+        swayAmp: type === 'rain' ? 0 : (0.35 + Math.random() * 0.85),
+        swayFreq: 0.012 + Math.random() * 0.018,
+        phase: Math.random() * Math.PI * 2,
+        alpha: 0.35 + Math.random() * 0.6
+      };
+    }
+
+    function initParticles() {
+      const count = particleTypeEl.value === 'none' ? 0 : Number(particleCountEl.value);
+      particles = Array.from({ length: count }, () => createParticle(true));
+    }
+    initParticles();
+
+    function updateAndDrawParticles(tick) {
+      const type = particleTypeEl.value;
+      if (type === 'none' || particles.length === 0) return;
+      const W = 720, H = 1280;
+
+      if (type === 'rain') {
+        ctx.strokeStyle = 'rgba(219, 234, 254, 0.45)';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        for (let i = 0; i < particles.length; i++) {
+          const p = particles[i];
+          p.y += p.speedY; p.x -= p.speedY * 0.14;
+          if (p.y > H + 20 || p.x < -20) { particles[i] = createParticle(false); continue; }
+          ctx.moveTo(p.x, p.y);
+          ctx.lineTo(p.x + 3, p.y - 22);
+        }
+        ctx.stroke();
+        return;
+      }
+
+      const sprite = sprites[type] || sprites.fireflies;
+      for (let i = 0; i < particles.length; i++) {
+        const p = particles[i];
+        p.phase += p.swayFreq;
+        if (type === 'snow') {
+          p.y += p.speedY; p.x += Math.sin(p.phase) * p.swayAmp;
+          if (p.y > H + 15) { particles[i] = createParticle(false); continue; }
+        } else {
+          p.y -= p.speedY; p.x += Math.sin(p.phase) * p.swayAmp;
+          if (p.y < -20) { particles[i] = createParticle(false); continue; }
+        }
+        ctx.globalAlpha = p.alpha * (0.6 + 0.4 * Math.sin(tick * 0.05 + p.phase));
+        const sz = sprite.width * p.scale;
+        ctx.drawImage(sprite, p.x - sz * 0.5, p.y - sz * 0.5, sz, sz);
+      }
+      ctx.globalAlpha = 1;
+    }
+
+    document.getElementById('randomHookBtn').addEventListener('click', () => {
+      const cur = hookTextEl.value.trim();
+      let nxt = hooks[Math.floor(Math.random() * hooks.length)];
+      if (nxt === cur && hooks.length > 1) nxt = hooks[(hooks.indexOf(cur) + 1) % hooks.length];
+      hookTextEl.value = nxt;
+      lastHookVal = '';
+    });
+
+    videoInput.addEventListener('change', (e) => {
+      const file = e.target.files[0]; if (!file) return;
+      srcVideo.src = URL.createObjectURL(file);
+      srcVideo.onloadeddata = () => {
+        isVideoLoaded = true;
+        srcVideo.muted = isShortAudioLoaded;
+        srcVideo.play();
+        statusEl.textContent = `Video siap (${Math.round(srcVideo.duration)}s).`;
+      };
+    });
+
+    shortAudioInput.addEventListener('change', (e) => {
+      const file = e.target.files[0]; if (!file) return;
+      shortAudioPlayer.src = URL.createObjectURL(file);
+      shortAudioPlayer.onloadedmetadata = () => {
+        isShortAudioLoaded = true;
+        srcVideo.muted = true;
+        audioStartEl.max = Math.max(0, Math.floor(shortAudioPlayer.duration - 10));
+        shortAudioPlayer.currentTime = Number(audioStartEl.value);
+        statusEl.textContent = `MP3 siap (${Math.round(shortAudioPlayer.duration)}s).`;
+      };
+    });
+
+    document.getElementById('togglePlayBtn').addEventListener('click', () => {
+      if (!isVideoLoaded) return;
+      initShortAudioGraph();
+      if (sAudioCtx.state === 'suspended') sAudioCtx.resume();
+      if (srcVideo.paused) {
+        srcVideo.play();
+        if (isShortAudioLoaded) { shortAudioPlayer.currentTime = Number(audioStartEl.value); shortAudioPlayer.play(); }
+      } else {
+        srcVideo.pause(); shortAudioPlayer.pause();
+      }
+    });
+
+    function getWrappedLines(context, text, maxWidth) {
+      if (text === lastHookVal && cachedLines.length > 0) return cachedLines;
+      const lines = [];
+      for (const para of text.split('\n')) {
+        const words = para.trim().split(/\s+/);
+        if (!words[0]) { lines.push(''); continue; }
+        let line = words[0];
+        for (let i = 1; i < words.length; i++) {
+          const test = line + ' ' + words[i];
+          if (context.measureText(test).width <= maxWidth) line = test;
+          else { lines.push(line); line = words[i]; }
+        }
+        lines.push(line);
+      }
+      lastHookVal = text;
+      cachedLines = lines;
+      return lines;
+    }
+
+    function drawRoundedRect(c, x, y, w, h, r) {
+      c.beginPath(); c.moveTo(x + r, y); c.lineTo(x + w - r, y);
+      c.quadraticCurveTo(x + w, y, x + w, y + r); c.lineTo(x + w, y + h - r);
+      c.quadraticCurveTo(x + w, y + h, x + w - r, y + h); c.lineTo(x + r, y + h);
+      c.quadraticCurveTo(x, y + h, x, y + h - r); c.lineTo(x, y + r);
+      c.quadraticCurveTo(x, y, x + r, y); c.closePath(); c.fill();
+    }
+
+    let frameTick = 0;
+    function renderFrame() {
+      frameTick++;
+      const W = 720, H = 1280;
+
+      if (isVideoLoaded && srcVideo.readyState >= 2) {
+        const vw = srcVideo.videoWidth, vh = srcVideo.videoHeight, tr = W / H, vr = vw / vh;
+        let sx = 0, sy = 0, sw = vw, sh = vh;
+        if (vr > tr) { sw = vh * tr; sx = (vw - sw) / 2; }
+        else { sh = vw / tr; sy = (vh - sh) / 2; }
+        ctx.drawImage(srcVideo, sx, sy, sw, sh, 0, 0, W, H);
+      } else {
+        ctx.fillStyle = '#0f172a';
+        ctx.fillRect(0, 0, W, H);
+      }
+
+      const dim = Number(dimBgEl.value) / 100;
+      if (dim > 0) { ctx.fillStyle = `rgba(0,0,0,${dim})`; ctx.fillRect(0, 0, W, H); }
+
+      updateAndDrawParticles(frameTick);
+
+      const fSize = Number(fontSizeEl.value), lh = Math.round(fSize * 1.32);
+      ctx.font = `700 ${fSize}px 'Segoe UI', Roboto, Arial, sans-serif`;
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      const lines = getWrappedLines(ctx, hookTextEl.value, W - 96);
+      const centerY = (H * (Number(posYEl.value) / 100)) - ((lines.length * lh) / 2) + (lh / 2);
+
+      // Bayangan teks ringan tanpa shadowBlur berat
+      ctx.fillStyle = 'rgba(0,0,0,0.82)';
+      lines.forEach((l, i) => ctx.fillText(l, W / 2 + 2, centerY + i * lh + 3));
+      ctx.fillStyle = textColorEl.value;
+      lines.forEach((l, i) => ctx.fillText(l, W / 2, centerY + i * lh));
+
+      const cta = ctaTextEl.value.trim();
+      if (cta) {
+        ctx.font = `600 22px 'Segoe UI', Roboto, Arial, sans-serif`;
+        const cw = Math.min(ctx.measureText(cta).width + 38, W - 80), ch = 42, cx = (W - cw) / 2, cy = H - 240;
+        ctx.fillStyle = 'rgba(2,6,23,0.74)';
+        drawRoundedRect(ctx, cx, cy, cw, ch, 21);
+        ctx.fillStyle = '#f8fafc';
+        ctx.fillText(cta, W / 2, cy + ch / 2 + 1, cw - 24);
+      }
+    }
+
+    // Loop konstan 30 FPS (33.3ms) agar frame video mulus tanpa lompat
+    setInterval(renderFrame, 1000 / 30);
+
+    renderBtn.addEventListener('click', () => {
+      if (!isVideoLoaded) { alert('Silakan pilih file video latar terlebih dahulu!'); return; }
+      if (isRecording) return;
+
+      initShortAudioGraph();
+      if (sAudioCtx.state === 'suspended') sAudioCtx.resume();
+
+      isRecording = true; renderBtn.disabled = true;
+      srcVideo.loop = false;
+      srcVideo.currentTime = 0;
+
+      if (isShortAudioLoaded) {
+        srcVideo.muted = true;
+        shortAudioPlayer.currentTime = Number(audioStartEl.value);
+        shortAudioPlayer.play();
+      } else {
+        srcVideo.muted = false;
+      }
+
+      const vStream = canvas.captureStream(30);
+      const combinedStream = new MediaStream([
+        ...vStream.getVideoTracks(),
+        ...sDestStream.stream.getAudioTracks()
+      ]);
+
+      const mime = ['video/mp4;codecs=avc1,mp4a.40.2', 'video/webm;codecs=vp8,opus', 'video/webm'].find(m => MediaRecorder.isTypeSupported(m)) || '';
+      const recorder = mime ? new MediaRecorder(combinedStream, { mimeType: mime, videoBitsPerSecond: 3500000 }) : new MediaRecorder(combinedStream);
+      const chunks = [];
+
+      recorder.ondataavailable = (e) => { if (e.data && e.data.size > 0) chunks.push(e.data); };
+      recorder.onstop = () => {
+        const ext = mime.includes('mp4') ? 'mp4' : 'webm';
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(new Blob(chunks, { type: mime || 'video/webm' }));
+        a.download = `Shorts_Smooth_${Date.now()}.${ext}`;
+        document.body.appendChild(a); a.click(); a.remove();
+        isRecording = false; renderBtn.disabled = false;
+        srcVideo.loop = true; srcVideo.play();
+        if (isShortAudioLoaded) shortAudioPlayer.pause();
+        statusEl.textContent = '✅ Selesai! Video Shorts mulus berhasil diunduh.';
+      };
+
+      srcVideo.onended = () => { if (recorder.state !== 'inactive') recorder.stop(); };
+      srcVideo.play();
+      recorder.start();
+      statusEl.textContent = '⏳ Merender 720p 30fps... Biarkan layar menyala.';
+    });
+  </script>
+</body>
+</html>
