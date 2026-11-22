@@ -1,227 +1,344 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Suno Short-Tag Dynamic</title>
-<style>
-:root{--bg:#0f172a;--c:#1e293b;--b:#334155;--p:#38bdf8;--a:#10b981;--t:#f1f5f9;--m:#94a3b8}
-*{box-sizing:border-box;font-family:system-ui,sans-serif}
-body{background:var(--bg);color:var(--t);margin:0;padding:12px}
-.box{max-width:600px;margin:auto}
-.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
-h1{font-size:1.05rem;margin:0;color:var(--p)}
-.card{background:var(--c);border:1px solid var(--b);border-radius:10px;padding:12px;margin-bottom:12px}
-label{display:block;font-size:.74rem;font-weight:700;color:var(--m);margin-bottom:5px;text-transform:uppercase}
-select,input,textarea{width:100%;background:var(--bg);border:1px solid var(--b);color:var(--t);padding:9px;border-radius:7px;font-size:.88rem;margin-bottom:10px}
-.chips{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px}
-.chip{background:var(--bg);border:1px solid var(--b);padding:5px 9px;border-radius:16px;font-size:.76rem;cursor:pointer}
-.chip.active{background:var(--p);color:var(--bg);font-weight:700}
-.row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.rel{position:relative}
-.cp{position:absolute;top:6px;right:6px;background:var(--p);color:var(--bg);border:0;padding:4px 9px;border-radius:5px;font-size:.75rem;font-weight:700;cursor:pointer}
-.btn{width:100%;background:var(--a);color:var(--bg);border:0;padding:9px;border-radius:7px;font-weight:700;font-size:.83rem;cursor:pointer;margin-bottom:10px}
-textarea{font-family:monospace;font-size:.84rem;padding-right:68px;margin-bottom:3px}
-.info{display:flex;justify-content:space-between;font-size:.72rem;color:var(--a)}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cadas Resonance — Shorts Hook & Particle Maker</title>
+  <style>
+    :root {
+      --bg: #0b1120; --card: #131c31; --border: #24324d;
+      --text: #f1f5f9; --muted: #94a3b8; --accent: #38bdf8;
+      --accent-hover: #0ea5e9; --gold: #facc15;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+    body { background: var(--bg); color: var(--text); padding: 14px; max-width: 540px; margin: 0 auto; }
+    h1 { font-size: 1.12rem; font-weight: 700; color: var(--accent); margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
+    .badge { font-size: 0.72rem; background: #1e293b; color: var(--gold); padding: 3px 8px; border-radius: 99px; border: 1px solid var(--border); }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 14px; margin-bottom: 14px; }
+    .label-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .step-title { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.5px; color: var(--muted); text-transform: uppercase; }
+    input[type="file"] { width: 100%; background: #0f172a; border: 1px dashed #334155; padding: 10px; border-radius: 10px; color: var(--text); font-size: 0.85rem; }
+    textarea, input[type="text"], select {
+      width: 100%; background: #0f172a; border: 1px solid #334155; color: var(--text);
+      border-radius: 10px; padding: 10px 12px; font-size: 0.92rem; outline: none; margin-bottom: 10px;
+    }
+    textarea:focus, input[type="text"]:focus, select:focus { border-color: var(--accent); }
+    textarea { resize: vertical; min-height: 76px; line-height: 1.4; }
+    .btn {
+      border: none; border-radius: 10px; padding: 9px 14px; font-weight: 600; font-size: 0.84rem;
+      cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; transition: 0.15s;
+    }
+    .btn-hook { background: var(--accent); color: #082f49; padding: 6px 12px; font-size: 0.8rem; }
+    .btn-hook:hover { background: var(--accent-hover); }
+    .btn-primary { background: linear-gradient(135deg, #2563eb, #0ea5e9); color: #fff; width: 100%; padding: 12px; font-size: 0.95rem; margin-top: 6px; }
+    .btn-secondary { background: #1e293b; color: var(--text); border: 1px solid #334155; width: 100%; padding: 10px; margin-top: 8px; }
+    .controls-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 4px; }
+    .control-item label { display: block; font-size: 0.74rem; color: var(--muted); margin-bottom: 4px; }
+    input[type="range"] { width: 100%; accent-color: var(--accent); }
+    .preview-wrap { display: flex; flex-direction: column; align-items: center; }
+    canvas {
+      width: 100%; max-width: 320px; aspect-ratio: 9 / 16; background: #020617;
+      border-radius: 14px; border: 1px solid #334155; display: block;
+    }
+    #status { font-size: 0.82rem; color: var(--gold); text-align: center; margin-top: 8px; min-height: 18px; }
+    video#srcVideo { display: none; }
+  </style>
 </head>
 <body>
-  <div style="display:flex;gap:8px;max-width:520px;margin:0 auto 12px">
-  <a href="index.html" style="flex:1;text-align:center;background:#38bdf8;color:#0f172a;padding:8px;border-radius:8px;font-weight:700;text-decoration:none;font-size:.82rem">🎵 Generator Musik</a>
-  <a href="shorts.html" style="flex:1;text-align:center;background:#1e293b;color:#f1f5f9;border:1px solid #334155;padding:8px;border-radius:8px;font-weight:700;text-decoration:none;font-size:.82rem">📱 Pembuat Shorts</a>
-  </div>
-  
-<div class="box">
-  <div class="top">
-    <h1>🎛️ Short-Tag Dynamic</h1>
-    <button class="cp" style="position:static" onclick="buildPlaylist()">🔄 Paket Baru</button>
+  <h1>
+    <span>SHORTS HOOK MAKER</span>
+    <span class="badge">v2.2 • Smooth Particles</span>
+  </h1>
+
+  <div class="card">
+    <div class="label-row"><span class="step-title">1. Pilih Video Latar (Ombak / Hujan)</span></div>
+    <input type="file" id="videoInput" accept="video/*" />
   </div>
 
   <div class="card">
-    <label>0. Visual Video</label>
-    <select id="vis" onchange="setVis()">
-      <option value="Overcast Countryside|overcast ambient, nature">☁️ Langit Mendung & Lahan</option>
-      <option value="Rainy Window|rain soundscape, cozy ambient">🌧️ Hujan di Kaca Jendela</option>
-      <option value="Midnight Highway|night drive, dark atmospheric">🛣️ Perjalanan Malam</option>
-      <option value="Mountain Fog|misty nature, peaceful ambient">🌲 Kabut Pegunungan</option>
-      <option value="Ocean Sunset|sunset chillout, coastal breeze">🌊 Ombak Pantai & Senja</option>
-      <option value="Morning Coffee|cozy lofi, warm study beats">☕ Kopi & Meja Kerja</option>
-      <option value="custom">✍️ Ketik Visual Sendiri...</option>
-    </select>
-    <div id="cBox" style="display:none">
-      <input id="cT" placeholder="Judul Visual (Inggris), mis: Quiet River" oninput="buildPlaylist()">
-      <input id="cD" placeholder="Tag Suasana (2-3 kata), mis: peaceful river, nature" oninput="genPrompt()">
+    <div class="label-row">
+      <span class="step-title">2. Teks Hook & Motivasi Global</span>
+      <button type="button" class="btn btn-hook" id="randomHookBtn">✨ Acak Hook</button>
     </div>
+    <textarea id="hookText">You can't stop the waves,
+but you can learn to breathe through the storm.</textarea>
 
-    <label>1. Genre Musik</label>
-    <select id="gen" onchange="setInst()">
-      <option value="ambient soundscape">Ambient Soundscape</option>
-      <option value="chill lofi beats">Chill Lo-Fi Beats</option>
-      <option value="post-rock instrumental">Post-Rock Instrumental</option>
-      <option value="dark synthwave">Dark Synthwave / Cyberpunk</option>
-      <option value="reggae dub instrumental">Reggae Dub Instrumental</option>
-      <option value="deep house chill">Deep House Chill</option>
-    </select>
+    <div class="label-row"><span class="step-title">Teks CTA Bawah (Arahkan ke Video Panjang)</span></div>
+    <input type="text" id="ctaText" value="55 min of ocean sunset chill beats below ↓" />
 
-    <label>2. Instrumen (Otomatis bergantian tiap Track)</label>
-    <div class="chips" id="chips"></div>
-
-    <div class="row">
-      <div>
-        <label>3. Mood</label>
-        <select id="mood" onchange="genPrompt()">
-          <option value="peaceful, relaxing">Peaceful & Relaxing</option>
-          <option value="melancholic, calm">Melancholic & Calm</option>
-          <option value="dark, driving">Dark & Driving</option>
-          <option value="warm, cozy">Warm & Cozy</option>
+    <div class="controls-grid">
+      <div class="control-item">
+        <label>Efek Partikel Halus</label>
+        <select id="particleType">
+          <option value="fireflies" selected>✨ Kunang-Kunang Emas (Sunset)</option>
+          <option value="bokeh">☀️ Debu Cahaya Melayang (Bokeh)</option>
+          <option value="rain">🌧️ Gerimis Hujan Halus</option>
+          <option value="snow">❄️ Salju Lembut (Sleep)</option>
+          <option value="bubbles">🫧 Gelembung Embun Naik</option>
+          <option value="none">🚫 Tanpa Partikel</option>
         </select>
       </div>
-      <div>
-        <label>4. Tempo</label>
-        <select id="tempo" onchange="genPrompt()">
-          <option value="65 bpm, slow tempo">Slow (65 BPM)</option>
-          <option value="85 bpm, mid-tempo">Medium (85 BPM)</option>
-          <option value="115 bpm, upbeat">Upbeat (115 BPM)</option>
-          <option value="free tempo, drone">Free Tempo</option>
+      <div class="control-item">
+        <label>Kepadatan Partikel: <span id="particleCountVal">45</span></label>
+        <input type="range" id="particleCount" min="15" max="100" value="45" />
+      </div>
+      <div class="control-item">
+        <label>Warna Teks Utama</label>
+        <select id="textColor">
+          <option value="#ffffff" selected>Putih Bersih (Kontras Tinggi)</option>
+          <option value="#facc15">Kuning Emas Sunset</option>
+          <option value="#e0f2fe">Biru Es Lembut</option>
         </select>
       </div>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="row" style="align-items:end;margin-bottom:4px">
-      <div>
-        <label>Track Aktif</label>
-        <select id="trackSel" onchange="selectTrack(this.value)" style="margin-bottom:10px"></select>
+      <div class="control-item">
+        <label>Ukuran Teks Hook: <span id="fontSizeVal">54</span>px</label>
+        <input type="range" id="fontSize" min="38" max="74" value="54" />
       </div>
-      <div>
-        <button class="btn" onclick="nextTrack()">⏭️ Track Berikutnya</button>
+      <div class="control-item">
+        <label>Posisi Atas-Bawah: <span id="posYVal">48</span>%</label>
+        <input type="range" id="posY" min="25" max="68" value="48" />
+      </div>
+      <div class="control-item">
+        <label>Gelapkan Latar: <span id="dimVal">22</span>%</label>
+        <input type="range" id="dimBg" min="0" max="65" value="22" />
       </div>
     </div>
-
-    <label>1. Nama File / Tracklist (Sinkron Playlist)</label>
-    <div class="rel">
-      <button class="cp" onclick="cp('tOut',this)">Salin</button>
-      <input id="tOut" readonly style="padding-right:68px;margin-bottom:2px">
-    </div>
-    <div class="info" style="margin-bottom:10px"><span>Untuk judul Suno & deskripsi YT</span><span id="tCnt">0/80</span></div>
-
-    <label>4. Gaya Musik (Otomatis Berubah Tiap Track)</label>
-    <div class="rel">
-      <button class="cp" onclick="cp('sOut',this)">Salin</button>
-      <textarea id="sOut" rows="3" readonly></textarea>
-    </div>
-    <div class="info"><span>Rotasi instrumen, tekstur & key tiap track</span><span id="sCnt">0/1000</span></div>
   </div>
 
-  <div class="card" style="border-color:var(--a)">
-    <label style="color:var(--a)">📺 Master Playlist 15 Lagu (YouTube)</label>
-    <button class="btn" style="background:var(--b);color:#fff" onclick="buildPlaylist()">📋 Acak Ulang 15 Tracklist</button>
-    <div class="rel">
-      <button class="cp" onclick="cp('ytOut',this)">Salin</button>
-      <input id="ytOut" readonly style="padding-right:68px">
-    </div>
-    <div class="rel">
-      <button class="cp" onclick="cp('plOut',this)">Salin</button>
-      <textarea id="plOut" rows="8" readonly></textarea>
-    </div>
+  <div class="card preview-wrap">
+    <div class="label-row" style="width:100%;"><span class="step-title">3. Preview Vertikal 9:16 (Safe Zone)</span></div>
+    <canvas id="previewCanvas" width="1080" height="1920"></canvas>
+    <div id="status">Unggah video latar untuk mulai pratinjau & render.</div>
+    <button type="button" class="btn btn-primary" id="renderBtn">🎬 Render & Unduh Video Shorts</button>
+    <button type="button" class="btn btn-secondary" id="togglePlayBtn">⏯️ Play / Pause Preview</button>
   </div>
-</div>
 
-<script>
-const instDB={
-  "ambient soundscape":["synth pad","felt piano","rain texture","sub bass","cello","harp"],
-  "chill lofi beats":["acoustic guitar","rhodes piano","vinyl crackle","soft drums","mellow bass","flute"],
-  "post-rock instrumental":["ambient electric guitar","delay guitar","piano","tom drums","bass guitar","strings"],
-  "dark synthwave":["analog bass","industrial drums","arpeggiator synth","electric guitar","dark synth","brass"],
-  "reggae dub instrumental":["reggae guitar","dub bassline","rimshot drums","hammond organ","tape delay","melodica"],
-  "deep house chill":["warm bassline","soft kick","synth chords","plucked guitar","hi-hats","marimba"]
-};
-const adj=["Silent","Distant","Velvet","Fading","Golden","Midnight","Quiet","Misty","Hollow","Endless","Drifting","Solitary","Amber","Deep","Pale","Still","Echoing","Calm"];
-const noun=["Horizon","Echoes","Drift","Solitude","Whispers","Clouds","Reflections","Breeze","Shadows","Stillness","Twilight","Raindrops","Pathway","Memory","Pulse","Haven","Mist","Dusk"];
-const keys=["D minor","A minor","F major","C minor","E minor","G major","B minor","Eb major"];
-const textures=["warm analog","spacious reverb","minimalist","deep atmospheric","soft tape warmth","dreamy harmonic","intimate acoustic","lush layered"];
-let sel=[],tracks=[],curIdx=0;
-const rnd=a=>a[Math.floor(Math.random()*a.length)];
+  <video id="srcVideo" playsinline muted loop crossorigin="anonymous"></video>
 
-function makeTitle(k){
-  const p=[()=>`${rnd(adj)} ${k}`,()=>`${k} ${rnd(noun)}`,()=>`${rnd(adj)} ${rnd(noun)}`,()=>`${rnd(noun)} of ${k}`];
-  return rnd(p)();
-}
-function getVis(){
-  const v=document.getElementById("vis").value;
-  if(v==="custom")return{t:document.getElementById("cT").value.trim()||"Horizon",d:document.getElementById("cD").value.trim()||"ambient"};
-  const p=v.split("|");return{t:p[0],d:p[1]};
-}
-function setVis(){
-  document.getElementById("cBox").style.display=document.getElementById("vis").value==="custom"?"block":"none";
-  buildPlaylist();
-}
-function renderChips(){
-  const g=document.getElementById("gen").value,box=document.getElementById("chips");
-  box.innerHTML="";const l=instDB[g]||[];
-  l.forEach(x=>{
-    const d=document.createElement("div");
-    d.className="chip"+(sel.includes(x)?" active":"");d.textContent=x;
-    d.onclick=()=>{sel=sel.includes(x)?sel.filter(i=>i!==x):[...sel,x];d.classList.toggle("active");genPrompt()};
-    box.appendChild(d);
-  });
-}
-function rotateInstruments(idx){
-  const g=document.getElementById("gen").value,l=instDB[g]||[];
-  if(!l.length)return;
-  const i1=idx%l.length;
-  const i2=(idx+1)%l.length;
-  const i3=(idx+3)%l.length;
-  sel=[...new Set([l[i1],l[i2],l[i3]])];
-  renderChips();
-}
-function setInst(){
-  rotateInstruments(0);
-  buildPlaylist();
-}
-function buildPlaylist(){
-  const v=getVis(),g=document.getElementById("gen").value;
-  document.getElementById("ytOut").value=`${v.t} — ${g.toUpperCase()} Mix for Deep Focus, Sleep & Relaxation [1 Hour]`;
-  const u=new Set();tracks=[];let c=0;
-  while(tracks.length<15&&c<120){
-    c++;const t=makeTitle(v.t).slice(0,80);
-    if(!u.has(t)){u.add(t);tracks.push(t);}
-  }
-  const selEl=document.getElementById("trackSel");
-  selEl.innerHTML="";
-  tracks.forEach((t,i)=>{
-    const o=document.createElement("option");
-    o.value=i;o.textContent=`Track ${String(i+1).padStart(2,"0")}: ${t}`;
-    selEl.appendChild(o);
-  });
-  document.getElementById("plOut").value=tracks.map((t,i)=>`${String(i+1).padStart(2,"0")}. ${t}`).join("\n");
-  selectTrack(0);
-}
-function selectTrack(idx){
-  curIdx=parseInt(idx,10)||0;
-  document.getElementById("trackSel").value=curIdx;
-  const title=tracks[curIdx]||"";
-  document.getElementById("tOut").value=title;
-  document.getElementById("tCnt").textContent=title.length+"/80";
-  rotateInstruments(curIdx);
-  genPrompt();
-}
-function nextTrack(){selectTrack((curIdx+1)%tracks.length)}
-function genPrompt(){
-  const v=getVis(),g=document.getElementById("gen").value,m=document.getElementById("mood").value,tp=document.getElementById("tempo").value;
-  const it=sel.length?sel.join(", "):"synth pad, piano";
-  const curK=keys[curIdx%keys.length];
-  const curTex=textures[curIdx%textures.length];
-  const st=`${g}, ${it}, ${curTex}, ${m}, ${tp}, ${curK}, ${v.d}, instrumental`.slice(0,1000);
-  document.getElementById("sOut").value=st;
-  document.getElementById("sCnt").textContent=st.length+"/1000";
-}
-function cp(id,b){
-  const e=document.getElementById(id);e.select();e.setSelectionRange(0,99999);
-  navigator.clipboard.writeText(e.value);const o=b.textContent;b.textContent="OK!";setTimeout(()=>b.textContent=o,1200);
-}
-setVis();setInst();
-</script>
+  <script>
+    const hooks = [
+      "You can't stop the waves,\nbut you can learn to breathe through the storm.",
+      "Be like the ocean.\nEven when waves crash against the rocks,\nit never loses its depth.",
+      "Disconnect from the rush.\nLet the tide wash away what was never meant to stay.",
+      "Slow down. Breathe in the salt air.\nNot everything needs to be figured out tonight.",
+      "Protect your energy. Heal quietly.\nLet the ocean remind you how vast life still is.",
+      "Some days, the most productive thing you can do\nis sit still and listen to the waves.",
+      "Even the heaviest rain doesn't last forever.\nSlow down, breathe, and let your mind rest tonight."
+    ];
+
+    const videoInput = document.getElementById('videoInput');
+    const srcVideo = document.getElementById('srcVideo');
+    const canvas = document.getElementById('previewCanvas');
+    const ctx = canvas.getContext('2d');
+    const hookTextEl = document.getElementById('hookText');
+    const ctaTextEl = document.getElementById('ctaText');
+    const particleTypeEl = document.getElementById('particleType');
+    const particleCountEl = document.getElementById('particleCount');
+    const textColorEl = document.getElementById('textColor');
+    const fontSizeEl = document.getElementById('fontSize');
+    const posYEl = document.getElementById('posY');
+    const dimBgEl = document.getElementById('dimBg');
+    const particleCountVal = document.getElementById('particleCountVal');
+    const fontSizeVal = document.getElementById('fontSizeVal');
+    const posYVal = document.getElementById('posYVal');
+    const dimVal = document.getElementById('dimVal');
+    const statusEl = document.getElementById('status');
+    const renderBtn = document.getElementById('renderBtn');
+    const togglePlayBtn = document.getElementById('togglePlayBtn');
+    const randomHookBtn = document.getElementById('randomHookBtn');
+
+    let isVideoLoaded = false, isRecording = false, particles = [];
+
+    fontSizeEl.addEventListener('input', () => fontSizeVal.textContent = fontSizeEl.value);
+    posYEl.addEventListener('input', () => posYVal.textContent = posYEl.value);
+    dimBgEl.addEventListener('input', () => dimVal.textContent = dimBgEl.value);
+    particleCountEl.addEventListener('input', () => { particleCountVal.textContent = particleCountEl.value; initParticles(); });
+    particleTypeEl.addEventListener('change', initParticles);
+
+    function createParticle(randomY = true) {
+      const W = canvas.width, H = canvas.height, type = particleTypeEl.value;
+      return {
+        x: Math.random() * W,
+        y: randomY ? Math.random() * H : (type === 'rain' || type === 'snow' ? -20 : H + 20),
+        size: type === 'bokeh' ? (12 + Math.random() * 24) : type === 'bubbles' ? (6 + Math.random() * 14) : type === 'rain' ? (1.5 + Math.random() * 1.5) : (3 + Math.random() * 5.5),
+        speedY: type === 'rain' ? (16 + Math.random() * 10) : type === 'snow' ? (1.4 + Math.random() * 1.8) : (0.7 + Math.random() * 1.4),
+        swayAmp: type === 'rain' ? 0 : (0.4 + Math.random() * 1.1),
+        swayFreq: 0.008 + Math.random() * 0.015,
+        phase: Math.random() * Math.PI * 2,
+        alpha: 0.25 + Math.random() * 0.55,
+        pulseSpeed: 0.015 + Math.random() * 0.025
+      };
+    }
+
+    function initParticles() {
+      const count = particleTypeEl.value === 'none' ? 0 : Number(particleCountEl.value);
+      particles = Array.from({ length: count }, () => createParticle(true));
+    }
+    initParticles();
+
+    function updateAndDrawParticles(timeMs) {
+      const type = particleTypeEl.value;
+      if (type === 'none' || particles.length === 0) return;
+      const W = canvas.width, H = canvas.height;
+      ctx.save();
+      for (let i = 0; i < particles.length; i++) {
+        const p = particles[i];
+        p.phase += p.swayFreq;
+        const pulse = 0.55 + 0.45 * Math.sin(timeMs * p.pulseSpeed * 0.06 + p.phase);
+        const a = p.alpha * pulse;
+
+        if (type === 'rain') {
+          p.y += p.speedY; p.x -= p.speedY * 0.14;
+          if (p.y > H + 30 || p.x < -30) { particles[i] = createParticle(false); continue; }
+          ctx.strokeStyle = `rgba(219, 234, 254, ${a * 0.7})`;
+          ctx.lineWidth = p.size; ctx.lineCap = 'round';
+          ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p.x + 5, p.y - 34); ctx.stroke();
+        } else if (type === 'snow') {
+          p.y += p.speedY; p.x += Math.sin(p.phase) * p.swayAmp;
+          if (p.y > H + 20) { particles[i] = createParticle(false); continue; }
+          const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size * 2.2);
+          g.addColorStop(0, `rgba(255,255,255,${a})`); g.addColorStop(1, 'rgba(255,255,255,0)');
+          ctx.fillStyle = g; ctx.beginPath(); ctx.arc(p.x, p.y, p.size * 2.2, 0, Math.PI * 2); ctx.fill();
+        } else if (type === 'bubbles') {
+          p.y -= p.speedY; p.x += Math.sin(p.phase) * p.swayAmp;
+          if (p.y < -30) { particles[i] = createParticle(false); continue; }
+          ctx.strokeStyle = `rgba(224,242,254,${a * 0.65})`; ctx.fillStyle = `rgba(224,242,254,${a * 0.12})`; ctx.lineWidth = 1.6;
+          ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+        } else if (type === 'bokeh') {
+          p.y -= p.speedY * 0.65; p.x += Math.sin(p.phase) * p.swayAmp;
+          if (p.y < -40) { particles[i] = createParticle(false); continue; }
+          const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size);
+          g.addColorStop(0, `rgba(254,243,199,${a * 0.55})`); g.addColorStop(0.6, `rgba(253,224,71,${a * 0.22})`); g.addColorStop(1, 'rgba(253,224,71,0)');
+          ctx.fillStyle = g; ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2); ctx.fill();
+        } else {
+          p.y -= p.speedY; p.x += Math.sin(p.phase) * p.swayAmp;
+          if (p.y < -25) { particles[i] = createParticle(false); continue; }
+          const r = p.size * 3.4, g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, r);
+          g.addColorStop(0, `rgba(255,251,235,${a})`); g.addColorStop(0.35, `rgba(250,204,21,${a * 0.7})`); g.addColorStop(1, 'rgba(250,204,21,0)');
+          ctx.fillStyle = g; ctx.beginPath(); ctx.arc(p.x, p.y, r, 0, Math.PI * 2); ctx.fill();
+        }
+      }
+      ctx.restore();
+    }
+
+    randomHookBtn.addEventListener('click', () => {
+      const cur = hookTextEl.value.trim();
+      let nxt = hooks[Math.floor(Math.random() * hooks.length)];
+      if (nxt === cur && hooks.length > 1) nxt = hooks[(hooks.indexOf(cur) + 1) % hooks.length];
+      hookTextEl.value = nxt;
+    });
+
+    videoInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      srcVideo.src = URL.createObjectURL(file);
+      srcVideo.onloadeddata = () => {
+        isVideoLoaded = true; srcVideo.play();
+        statusEl.textContent = `Video siap (${Math.round(srcVideo.duration)} detik). Siap dirender!`;
+      };
+    });
+
+    togglePlayBtn.addEventListener('click', () => {
+      if (!isVideoLoaded) return;
+      srcVideo.paused ? srcVideo.play() : srcVideo.pause();
+    });
+
+    function wrapLines(context, text, maxWidth) {
+      const lines = [];
+      for (const para of text.split('\n')) {
+        const words = para.trim().split(/\s+/);
+        if (!words[0]) { lines.push(''); continue; }
+        let line = words[0];
+        for (let i = 1; i < words.length; i++) {
+          const test = line + ' ' + words[i];
+          if (context.measureText(test).width <= maxWidth) line = test;
+          else { lines.push(line); line = words[i]; }
+        }
+        lines.push(line);
+      }
+      return lines;
+    }
+
+    function drawRoundedRect(c, x, y, w, h, r) {
+      c.beginPath(); c.moveTo(x + r, y); c.lineTo(x + w - r, y);
+      c.quadraticCurveTo(x + w, y, x + w, y + r); c.lineTo(x + w, y + h - r);
+      c.quadraticCurveTo(x + w, y + h, x + w - r, y + h); c.lineTo(x + r, y + h);
+      c.quadraticCurveTo(x, y + h, x, y + h - r); c.lineTo(x, y + r);
+      c.quadraticCurveTo(x, y, x + r, y); c.closePath(); c.fill();
+    }
+
+    function drawFrame(timeMs) {
+      const W = canvas.width, H = canvas.height;
+      ctx.clearRect(0, 0, W, H);
+
+      if (isVideoLoaded && srcVideo.readyState >= 2) {
+        const vw = srcVideo.videoWidth, vh = srcVideo.videoHeight, tr = W / H, vr = vw / vh;
+        let sx = 0, sy = 0, sw = vw, sh = vh;
+        if (vr > tr) { sw = vh * tr; sx = (vw - sw) / 2; }
+        else { sh = vw / tr; sy = (vh - sh) / 2; }
+        ctx.drawImage(srcVideo, sx, sy, sw, sh, 0, 0, W, H);
+      } else {
+        const grad = ctx.createLinearGradient(0, 0, 0, H);
+        grad.addColorStop(0, '#0f172a'); grad.addColorStop(1, '#1e293b');
+        ctx.fillStyle = grad; ctx.fillRect(0, 0, W, H);
+      }
+
+      const dim = Number(dimBgEl.value) / 100;
+      if (dim > 0) { ctx.fillStyle = `rgba(0,0,0,${dim})`; ctx.fillRect(0, 0, W, H); }
+
+      updateAndDrawParticles(timeMs || performance.now());
+
+      const fSize = Number(fontSizeEl.value), lh = Math.round(fSize * 1.32);
+      ctx.font = `700 ${fSize}px 'Segoe UI', Roboto, Helvetica, Arial, sans-serif`;
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      const lines = wrapLines(ctx, hookTextEl.value, W - 150);
+      const centerY = (H * (Number(posYEl.value) / 100)) - ((lines.length * lh) / 2) + (lh / 2);
+
+      ctx.save();
+      ctx.shadowColor = 'rgba(0,0,0,0.9)'; ctx.shadowBlur = 18; ctx.shadowOffsetY = 4;
+      ctx.fillStyle = textColorEl.value;
+      lines.forEach((l, i) => ctx.fillText(l, W / 2, centerY + i * lh));
+      ctx.restore();
+
+      const cta = ctaTextEl.value.trim();
+      if (cta) {
+        ctx.font = `600 32px 'Segoe UI', Roboto, Helvetica, Arial, sans-serif`;
+        const cw = Math.min(ctx.measureText(cta).width + 56, W - 120), ch = 62, cx = (W - cw) / 2, cy = H - 360;
+        ctx.save();
+        ctx.fillStyle = 'rgba(2,6,23,0.72)'; drawRoundedRect(ctx, cx, cy, cw, ch, 31);
+        ctx.strokeStyle = 'rgba(255,255,255,0.25)'; ctx.lineWidth = 2; ctx.stroke();
+        ctx.fillStyle = '#f8fafc'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText(cta, W / 2, cy + ch / 2 + 1, cw - 36);
+        ctx.restore();
+      }
+      requestAnimationFrame(drawFrame);
+    }
+    requestAnimationFrame(drawFrame);
+
+    renderBtn.addEventListener('click', () => {
+      if (!isVideoLoaded) { alert('Silakan pilih file video latar terlebih dahulu!'); return; }
+      if (isRecording) return;
+      isRecording = true; renderBtn.disabled = true; srcVideo.loop = false; srcVideo.currentTime = 0;
+
+      const stream = canvas.captureStream(30);
+      const mime = ['video/mp4;codecs=avc1', 'video/webm;codecs=vp9', 'video/webm'].find(m => MediaRecorder.isTypeSupported(m)) || '';
+      const recorder = mime ? new MediaRecorder(stream, { mimeType: mime, videoBitsPerSecond: 6000000 }) : new MediaRecorder(stream);
+      const chunks = [];
+
+      recorder.ondataavailable = (e) => { if (e.data && e.data.size > 0) chunks.push(e.data); };
+      recorder.onstop = () => {
+        const ext = mime.includes('mp4') ? 'mp4' : 'webm';
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(new Blob(chunks, { type: mime || 'video/webm' }));
+        a.download = `Shorts_CadasResonance_${Date.now()}.${ext}`;
+        document.body.appendChild(a); a.click(); a.remove();
+        isRecording = false; renderBtn.disabled = false; srcVideo.loop = true; srcVideo.play();
+        statusEl.textContent = '✅ Selesai! Video Shorts berhasil diunduh.';
+      };
+      srcVideo.onended = () => { if (recorder.state !== 'inactive') recorder.stop(); };
+      srcVideo.play(); recorder.start();
+      statusEl.textContent = '⏳ Sedang merender video penuh... Jangan tutup layar.';
+    });
+  </script>
 </body>
-  </html>
+</html>
