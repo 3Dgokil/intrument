@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cadas Resonance — Shorts Hook & Particle Maker</title>
+  <title>Cadas Resonance Studio — Long & Shorts Maker</title>
   <style>
     :root {
       --bg: #0b1120; --card: #131c31; --border: #24324d;
@@ -11,111 +11,305 @@
       --accent-hover: #0ea5e9; --gold: #facc15;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
-    body { background: var(--bg); color: var(--text); padding: 14px; max-width: 540px; margin: 0 auto; }
-    h1 { font-size: 1.12rem; font-weight: 700; color: var(--accent); margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
+    body { background: var(--bg); color: var(--text); padding: 14px; max-width: 580px; margin: 0 auto; }
+    h1 { font-size: 1.12rem; font-weight: 700; color: var(--accent); margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; }
     .badge { font-size: 0.72rem; background: #1e293b; color: var(--gold); padding: 3px 8px; border-radius: 99px; border: 1px solid var(--border); }
+    .tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; background: #0f172a; padding: 5px; border-radius: 12px; border: 1px solid var(--border); }
+    .tab-btn { background: transparent; color: var(--muted); border: none; padding: 10px; border-radius: 9px; font-weight: 700; font-size: 0.85rem; cursor: pointer; transition: 0.2s; }
+    .tab-btn.active { background: var(--accent); color: #082f49; }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
     .card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 14px; margin-bottom: 14px; }
     .label-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
     .step-title { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.5px; color: var(--muted); text-transform: uppercase; }
-    input[type="file"] { width: 100%; background: #0f172a; border: 1px dashed #334155; padding: 10px; border-radius: 10px; color: var(--text); font-size: 0.85rem; }
+    input[type="file"] { width: 100%; background: #0f172a; border: 1px dashed #334155; padding: 10px; border-radius: 10px; color: var(--text); font-size: 0.85rem; margin-bottom: 8px; }
     textarea, input[type="text"], select {
       width: 100%; background: #0f172a; border: 1px solid #334155; color: var(--text);
-      border-radius: 10px; padding: 10px 12px; font-size: 0.92rem; outline: none; margin-bottom: 10px;
+      border-radius: 10px; padding: 10px 12px; font-size: 0.9rem; outline: none; margin-bottom: 10px;
     }
-    textarea:focus, input[type="text"]:focus, select:focus { border-color: var(--accent); }
     textarea { resize: vertical; min-height: 76px; line-height: 1.4; }
-    .btn {
-      border: none; border-radius: 10px; padding: 9px 14px; font-weight: 600; font-size: 0.84rem;
-      cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; transition: 0.15s;
-    }
+    .btn { border: none; border-radius: 10px; padding: 9px 14px; font-weight: 600; font-size: 0.84rem; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
     .btn-hook { background: var(--accent); color: #082f49; padding: 6px 12px; font-size: 0.8rem; }
-    .btn-hook:hover { background: var(--accent-hover); }
-    .btn-primary { background: linear-gradient(135deg, #2563eb, #0ea5e9); color: #fff; width: 100%; padding: 12px; font-size: 0.95rem; margin-top: 6px; }
+    .btn-primary { background: linear-gradient(135deg, #2563eb, #0ea5e9); color: #fff; width: 100%; padding: 12px; font-size: 0.94rem; margin-top: 6px; }
     .btn-secondary { background: #1e293b; color: var(--text); border: 1px solid #334155; width: 100%; padding: 10px; margin-top: 8px; }
     .controls-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 4px; }
     .control-item label { display: block; font-size: 0.74rem; color: var(--muted); margin-bottom: 4px; }
     input[type="range"] { width: 100%; accent-color: var(--accent); }
     .preview-wrap { display: flex; flex-direction: column; align-items: center; }
-    canvas {
-      width: 100%; max-width: 320px; aspect-ratio: 9 / 16; background: #020617;
-      border-radius: 14px; border: 1px solid #334155; display: block;
-    }
-    #status { font-size: 0.82rem; color: var(--gold); text-align: center; margin-top: 8px; min-height: 18px; }
-    video#srcVideo { display: none; }
+    canvas.short-canvas { width: 100%; max-width: 310px; aspect-ratio: 9 / 16; background: #020617; border-radius: 14px; border: 1px solid #334155; }
+    canvas.long-canvas { width: 100%; aspect-ratio: 16 / 9; background: #020617; border-radius: 12px; border: 1px solid #334155; }
+    .status-text { font-size: 0.82rem; color: var(--gold); text-align: center; margin-top: 8px; min-height: 18px; }
+    .track-list { font-size: 0.78rem; color: #cbd5e1; background: #0f172a; padding: 8px 10px; border-radius: 8px; max-height: 110px; overflow-y: auto; margin-top: 6px; }
+    video { display: none; }
   </style>
 </head>
 <body>
   <h1>
-    <span>SHORTS HOOK MAKER</span>
-    <span class="badge">v2.2 • Smooth Particles</span>
+    <span>CADAS RESONANCE STUDIO</span>
+    <span class="badge">Long + Shorts</span>
   </h1>
 
-  <div class="card">
-    <div class="label-row"><span class="step-title">1. Pilih Video Latar (Ombak / Hujan)</span></div>
-    <input type="file" id="videoInput" accept="video/*" />
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('long', this)">🎬 Long Video (16:9)</button>
+    <button class="tab-btn" onclick="switchTab('shorts', this)">📱 Shorts Maker (9:16)</button>
   </div>
 
-  <div class="card">
-    <div class="label-row">
-      <span class="step-title">2. Teks Hook & Motivasi Global</span>
-      <button type="button" class="btn btn-hook" id="randomHookBtn">✨ Acak Hook</button>
+  <!-- ==================== TAB 1: LONG VIDEO (16:9) ==================== -->
+  <div id="tab-long" class="tab-panel active">
+    <div class="card">
+      <div class="label-row"><span class="step-title">1. Video Latar (Loop MP4) & Playlist Audio (MP3)</span></div>
+      <label style="font-size:0.75rem;color:#94a3b8;">Video Latar 16:9:</label>
+      <input type="file" id="longVideoInput" accept="video/*" />
+      <label style="font-size:0.75rem;color:#94a3b8;">Pilih Banyak File Lagu MP3:</label>
+      <input type="file" id="longAudioInput" accept="audio/*" multiple />
+      <div id="longTrackList" class="track-list">Belum ada lagu dipilih.</div>
     </div>
-    <textarea id="hookText">You can't stop the waves,
+
+    <div class="card">
+      <div class="label-row"><span class="step-title">2. Judul Kompilasi & Efek Visual</span></div>
+      <input type="text" id="longTitle" value="OCEAN SUNSET CHILL BEATS — WAVES & LO-FI FOR STUDY & SLEEP" />
+      <div class="controls-grid">
+        <div class="control-item">
+          <label>Efek Partikel Halus</label>
+          <select id="longParticleType">
+            <option value="fireflies" selected>✨ Kunang-Kunang Emas</option>
+            <option value="bokeh">☀️ Debu Cahaya (Bokeh)</option>
+            <option value="rain">🌧️ Gerimis Hujan</option>
+            <option value="none">🚫 Tanpa Partikel</option>
+          </select>
+        </div>
+        <div class="control-item">
+          <label>Gaya Spectrum Audio</label>
+          <select id="longSpectrumStyle">
+            <option value="bars" selected>📊 Bar Visualizer (Bawah)</option>
+            <option value="none">🚫 Tanpa Spectrum</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="card preview-wrap">
+      <div class="label-row" style="width:100%;"><span class="step-title">3. Preview 16:9 & Render Kompilasi</span></div>
+      <canvas id="longCanvas" class="long-canvas" width="1280" height="720"></canvas>
+      <div id="longStatus" class="status-text">Pilih video latar & MP3 untuk mulai.</div>
+      <button type="button" class="btn btn-primary" id="longRenderBtn">🎬 Render & Unduh Video Long (16:9)</button>
+      <button type="button" class="btn btn-secondary" id="longPlayBtn">⏯️ Play / Pause Preview</button>
+    </div>
+  </div>
+
+  <!-- ==================== TAB 2: SHORTS HOOK MAKER (9:16) ==================== -->
+  <div id="tab-shorts" class="tab-panel">
+    <div class="card">
+      <div class="label-row"><span class="step-title">1. Pilih Video Latar (Ombak / Hujan)</span></div>
+      <input type="file" id="videoInput" accept="video/*" />
+    </div>
+
+    <div class="card">
+      <div class="label-row">
+        <span class="step-title">2. Teks Hook & Motivasi Global</span>
+        <button type="button" class="btn btn-hook" id="randomHookBtn">✨ Acak Hook</button>
+      </div>
+      <textarea id="hookText">You can't stop the waves,
 but you can learn to breathe through the storm.</textarea>
 
-    <div class="label-row"><span class="step-title">Teks CTA Bawah (Arahkan ke Video Panjang)</span></div>
-    <input type="text" id="ctaText" value="55 min of ocean sunset chill beats below ↓" />
+      <div class="label-row"><span class="step-title">Teks CTA Bawah (Arahkan ke Video Panjang)</span></div>
+      <input type="text" id="ctaText" value="55 min of ocean sunset chill beats below ↓" />
 
-    <div class="controls-grid">
-      <div class="control-item">
-        <label>Efek Partikel Halus</label>
-        <select id="particleType">
-          <option value="fireflies" selected>✨ Kunang-Kunang Emas (Sunset)</option>
-          <option value="bokeh">☀️ Debu Cahaya Melayang (Bokeh)</option>
-          <option value="rain">🌧️ Gerimis Hujan Halus</option>
-          <option value="snow">❄️ Salju Lembut (Sleep)</option>
-          <option value="bubbles">🫧 Gelembung Embun Naik</option>
-          <option value="none">🚫 Tanpa Partikel</option>
-        </select>
-      </div>
-      <div class="control-item">
-        <label>Kepadatan Partikel: <span id="particleCountVal">45</span></label>
-        <input type="range" id="particleCount" min="15" max="100" value="45" />
-      </div>
-      <div class="control-item">
-        <label>Warna Teks Utama</label>
-        <select id="textColor">
-          <option value="#ffffff" selected>Putih Bersih (Kontras Tinggi)</option>
-          <option value="#facc15">Kuning Emas Sunset</option>
-          <option value="#e0f2fe">Biru Es Lembut</option>
-        </select>
-      </div>
-      <div class="control-item">
-        <label>Ukuran Teks Hook: <span id="fontSizeVal">54</span>px</label>
-        <input type="range" id="fontSize" min="38" max="74" value="54" />
-      </div>
-      <div class="control-item">
-        <label>Posisi Atas-Bawah: <span id="posYVal">48</span>%</label>
-        <input type="range" id="posY" min="25" max="68" value="48" />
-      </div>
-      <div class="control-item">
-        <label>Gelapkan Latar: <span id="dimVal">22</span>%</label>
-        <input type="range" id="dimBg" min="0" max="65" value="22" />
+      <div class="controls-grid">
+        <div class="control-item">
+          <label>Efek Partikel Halus</label>
+          <select id="particleType">
+            <option value="fireflies" selected>✨ Kunang-Kunang Emas (Sunset)</option>
+            <option value="bokeh">☀️ Debu Cahaya Melayang (Bokeh)</option>
+            <option value="rain">🌧️ Gerimis Hujan Halus</option>
+            <option value="snow">❄️ Salju Lembut (Sleep)</option>
+            <option value="bubbles">🫧 Gelembung Embun Naik</option>
+            <option value="none">🚫 Tanpa Partikel</option>
+          </select>
+        </div>
+        <div class="control-item">
+          <label>Kepadatan Partikel: <span id="particleCountVal">45</span></label>
+          <input type="range" id="particleCount" min="15" max="100" value="45" />
+        </div>
+        <div class="control-item">
+          <label>Warna Teks Utama</label>
+          <select id="textColor">
+            <option value="#ffffff" selected>Putih Bersih (Kontras Tinggi)</option>
+            <option value="#facc15">Kuning Emas Sunset</option>
+            <option value="#e0f2fe">Biru Es Lembut</option>
+          </select>
+        </div>
+        <div class="control-item">
+          <label>Ukuran Teks Hook: <span id="fontSizeVal">54</span>px</label>
+          <input type="range" id="fontSize" min="38" max="74" value="54" />
+        </div>
+        <div class="control-item">
+          <label>Posisi Atas-Bawah: <span id="posYVal">48</span>%</label>
+          <input type="range" id="posY" min="25" max="68" value="48" />
+        </div>
+        <div class="control-item">
+          <label>Gelapkan Latar: <span id="dimVal">22</span>%</label>
+          <input type="range" id="dimBg" min="0" max="65" value="22" />
+        </div>
       </div>
     </div>
-  </div>
 
-  <div class="card preview-wrap">
-    <div class="label-row" style="width:100%;"><span class="step-title">3. Preview Vertikal 9:16 (Safe Zone)</span></div>
-    <canvas id="previewCanvas" width="1080" height="1920"></canvas>
-    <div id="status">Unggah video latar untuk mulai pratinjau & render.</div>
-    <button type="button" class="btn btn-primary" id="renderBtn">🎬 Render & Unduh Video Shorts</button>
-    <button type="button" class="btn btn-secondary" id="togglePlayBtn">⏯️ Play / Pause Preview</button>
+    <div class="card preview-wrap">
+      <div class="label-row" style="width:100%;"><span class="step-title">3. Preview Vertikal 9:16 (Safe Zone)</span></div>
+      <canvas id="previewCanvas" class="short-canvas" width="1080" height="1920"></canvas>
+      <div id="status" class="status-text">Unggah video latar untuk mulai pratinjau & render.</div>
+      <button type="button" class="btn btn-primary" id="renderBtn">🎬 Render & Unduh Video Shorts</button>
+      <button type="button" class="btn btn-secondary" id="togglePlayBtn">⏯️ Play / Pause Preview</button>
+    </div>
   </div>
 
   <video id="srcVideo" playsinline muted loop crossorigin="anonymous"></video>
+  <video id="longSrcVideo" playsinline muted loop crossorigin="anonymous"></video>
+  <audio id="longAudioPlayer" crossorigin="anonymous"></audio>
 
   <script>
+    function switchTab(name, btn) {
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById('tab-' + name).classList.add('active');
+      btn.classList.add('active');
+    }
+
+    /* ==================== ENGINE 1: LONG 16:9 ==================== */
+    const longCanvas = document.getElementById('longCanvas');
+    const lCtx = longCanvas.getContext('2d');
+    const longSrcVideo = document.getElementById('longSrcVideo');
+    const longAudioPlayer = document.getElementById('longAudioPlayer');
+    const longStatus = document.getElementById('longStatus');
+    let longFiles = [], longIdx = 0, longVideoReady = false, longRecording = false;
+    let audioCtx, analyser, dataArray, destStream;
+
+    document.getElementById('longVideoInput').addEventListener('change', e => {
+      const f = e.target.files[0]; if (!f) return;
+      longSrcVideo.src = URL.createObjectURL(f);
+      longSrcVideo.onloadeddata = () => { longVideoReady = true; longSrcVideo.play(); };
+    });
+
+    document.getElementById('longAudioInput').addEventListener('change', e => {
+      longFiles = Array.from(e.target.files);
+      longIdx = 0;
+      const listEl = document.getElementById('longTrackList');
+      listEl.innerHTML = longFiles.map((f, i) => `${i + 1}. ${f.name.replace(/\.[^/.]+$/, '')}`).join('<br>');
+      if (longFiles.length > 0) {
+        longAudioPlayer.src = URL.createObjectURL(longFiles[0]);
+        longStatus.textContent = `${longFiles.length} lagu siap diputar & dirender.`;
+      }
+    });
+
+    function setupLongAudio() {
+      if (audioCtx) return;
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const src = audioCtx.createMediaElementSource(longAudioPlayer);
+      analyser = audioCtx.createAnalyser();
+      analyser.fftSize = 128;
+      dataArray = new Uint8Array(analyser.frequencyBinCount);
+      destStream = audioCtx.createMediaStreamDestination();
+      src.connect(analyser);
+      analyser.connect(audioCtx.destination);
+      analyser.connect(destStream);
+    }
+
+    document.getElementById('longPlayBtn').addEventListener('click', () => {
+      setupLongAudio();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      if (longAudioPlayer.paused) { longAudioPlayer.play(); if (longVideoReady) longSrcVideo.play(); }
+      else { longAudioPlayer.pause(); }
+    });
+
+    longAudioPlayer.addEventListener('ended', () => {
+      if (longIdx + 1 < longFiles.length) {
+        longIdx++;
+        longAudioPlayer.src = URL.createObjectURL(longFiles[longIdx]);
+        longAudioPlayer.play();
+      } else if (longRecording && window._longRecorder) {
+        window._longRecorder.stop();
+      }
+    });
+
+    const longParticles = Array.from({ length: 45 }, () => ({
+      x: Math.random() * 1280, y: Math.random() * 720, r: 2 + Math.random() * 3, sp: 0.4 + Math.random() * 0.8, ph: Math.random() * 6.28
+    }));
+
+    function drawLongFrame() {
+      const W = 1280, H = 720;
+      lCtx.clearRect(0, 0, W, H);
+      if (longVideoReady && longSrcVideo.readyState >= 2) {
+        lCtx.drawImage(longSrcVideo, 0, 0, W, H);
+      } else {
+        lCtx.fillStyle = '#0f172a'; lCtx.fillRect(0, 0, W, H);
+      }
+
+      if (document.getElementById('longParticleType').value !== 'none') {
+        longParticles.forEach(p => {
+          p.y -= p.sp; p.ph += 0.02; p.x += Math.sin(p.ph) * 0.4;
+          if (p.y < -10) { p.y = H + 10; p.x = Math.random() * W; }
+          lCtx.fillStyle = 'rgba(250, 204, 21, 0.55)';
+          lCtx.beginPath(); lCtx.arc(p.x, p.y, p.r, 0, Math.PI * 2); lCtx.fill();
+        });
+      }
+
+      // Top Title Banner
+      const title = document.getElementById('longTitle').value.trim();
+      if (title) {
+        lCtx.fillStyle = 'rgba(217, 119, 6, 0.85)';
+        lCtx.fillRect(110, 34, W - 220, 42);
+        lCtx.fillStyle = '#fff'; lCtx.font = 'bold 20px sans-serif'; lCtx.textAlign = 'center';
+        lCtx.fillText(title, W / 2, 62, W - 250);
+      }
+
+      // Spectrum Visualizer
+      if (analyser && document.getElementById('longSpectrumStyle').value === 'bars') {
+        analyser.getByteFrequencyData(dataArray);
+        const bars = 48, barW = (W - 240) / bars;
+        for (let i = 0; i < bars; i++) {
+          const val = dataArray[i] || 0;
+          const bh = (val / 255) * 110;
+          lCtx.fillStyle = `hsla(${190 + i * 2}, 90%, 60%, 0.8)`;
+          lCtx.fillRect(120 + i * barW, H - 85 - bh, barW - 4, bh);
+        }
+      }
+
+      // Now Playing Badge
+      if (longFiles[longIdx]) {
+        const trackName = `♪ NOW PLAYING • ${String(longIdx + 1).padStart(2, '0')}. ${longFiles[longIdx].name.replace(/\.[^/.]+$/, '')}`;
+        lCtx.fillStyle = 'rgba(217, 119, 6, 0.9)';
+        lCtx.fillRect(W / 2 - 260, H - 56, 520, 34);
+        lCtx.fillStyle = '#fff'; lCtx.font = 'bold 17px sans-serif'; lCtx.textAlign = 'center';
+        lCtx.fillText(trackName, W / 2, H - 33, 500);
+      }
+      requestAnimationFrame(drawLongFrame);
+    }
+    requestAnimationFrame(drawLongFrame);
+
+    document.getElementById('longRenderBtn').addEventListener('click', () => {
+      if (!longVideoReady || longFiles.length === 0) { alert('Pilih video latar dan file MP3 terlebih dahulu!'); return; }
+      setupLongAudio();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      longRecording = true; longIdx = 0;
+      longAudioPlayer.src = URL.createObjectURL(longFiles[0]);
+      const vStream = longCanvas.captureStream(30);
+      const combined = new MediaStream([...vStream.getVideoTracks(), ...destStream.stream.getAudioTracks()]);
+      const rec = new MediaRecorder(combined, { mimeType: 'video/webm', videoBitsPerSecond: 5000000 });
+      window._longRecorder = rec;
+      const chunks = [];
+      rec.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
+      rec.onstop = () => {
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(new Blob(chunks, { type: 'video/webm' }));
+        a.download = `Long_Compilation_${Date.now()}.webm`;
+        document.body.appendChild(a); a.click(); a.remove();
+        longRecording = false; longStatus.textContent = '✅ Selesai! Video kompilasi panjang diunduh.';
+      };
+      longSrcVideo.play(); longAudioPlayer.play(); rec.start();
+      longStatus.textContent = '⏳ Merender kompilasi panjang... Biarkan layar tetap menyala.';
+    });
+
+    /* ==================== ENGINE 2: SHORTS 9:16 ==================== */
     const hooks = [
       "You can't stop the waves,\nbut you can learn to breathe through the storm.",
       "Be like the ocean.\nEven when waves crash against the rocks,\nit never loses its depth.",
@@ -138,25 +332,18 @@ but you can learn to breathe through the storm.</textarea>
     const fontSizeEl = document.getElementById('fontSize');
     const posYEl = document.getElementById('posY');
     const dimBgEl = document.getElementById('dimBg');
-    const particleCountVal = document.getElementById('particleCountVal');
-    const fontSizeVal = document.getElementById('fontSizeVal');
-    const posYVal = document.getElementById('posYVal');
-    const dimVal = document.getElementById('dimVal');
     const statusEl = document.getElementById('status');
     const renderBtn = document.getElementById('renderBtn');
-    const togglePlayBtn = document.getElementById('togglePlayBtn');
-    const randomHookBtn = document.getElementById('randomHookBtn');
-
     let isVideoLoaded = false, isRecording = false, particles = [];
 
-    fontSizeEl.addEventListener('input', () => fontSizeVal.textContent = fontSizeEl.value);
-    posYEl.addEventListener('input', () => posYVal.textContent = posYEl.value);
-    dimBgEl.addEventListener('input', () => dimVal.textContent = dimBgEl.value);
-    particleCountEl.addEventListener('input', () => { particleCountVal.textContent = particleCountEl.value; initParticles(); });
+    fontSizeEl.addEventListener('input', () => document.getElementById('fontSizeVal').textContent = fontSizeEl.value);
+    posYEl.addEventListener('input', () => document.getElementById('posYVal').textContent = posYEl.value);
+    dimBgEl.addEventListener('input', () => document.getElementById('dimVal').textContent = dimBgEl.value);
+    particleCountEl.addEventListener('input', () => { document.getElementById('particleCountVal').textContent = particleCountEl.value; initParticles(); });
     particleTypeEl.addEventListener('change', initParticles);
 
     function createParticle(randomY = true) {
-      const W = canvas.width, H = canvas.height, type = particleTypeEl.value;
+      const W = 1080, H = 1920, type = particleTypeEl.value;
       return {
         x: Math.random() * W,
         y: randomY ? Math.random() * H : (type === 'rain' || type === 'snow' ? -20 : H + 20),
@@ -179,19 +366,17 @@ but you can learn to breathe through the storm.</textarea>
     function updateAndDrawParticles(timeMs) {
       const type = particleTypeEl.value;
       if (type === 'none' || particles.length === 0) return;
-      const W = canvas.width, H = canvas.height;
+      const W = 1080, H = 1920;
       ctx.save();
       for (let i = 0; i < particles.length; i++) {
         const p = particles[i];
         p.phase += p.swayFreq;
         const pulse = 0.55 + 0.45 * Math.sin(timeMs * p.pulseSpeed * 0.06 + p.phase);
         const a = p.alpha * pulse;
-
         if (type === 'rain') {
           p.y += p.speedY; p.x -= p.speedY * 0.14;
           if (p.y > H + 30 || p.x < -30) { particles[i] = createParticle(false); continue; }
-          ctx.strokeStyle = `rgba(219, 234, 254, ${a * 0.7})`;
-          ctx.lineWidth = p.size; ctx.lineCap = 'round';
+          ctx.strokeStyle = `rgba(219, 234, 254, ${a * 0.7})`; ctx.lineWidth = p.size; ctx.lineCap = 'round';
           ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p.x + 5, p.y - 34); ctx.stroke();
         } else if (type === 'snow') {
           p.y += p.speedY; p.x += Math.sin(p.phase) * p.swayAmp;
@@ -221,7 +406,7 @@ but you can learn to breathe through the storm.</textarea>
       ctx.restore();
     }
 
-    randomHookBtn.addEventListener('click', () => {
+    document.getElementById('randomHookBtn').addEventListener('click', () => {
       const cur = hookTextEl.value.trim();
       let nxt = hooks[Math.floor(Math.random() * hooks.length)];
       if (nxt === cur && hooks.length > 1) nxt = hooks[(hooks.indexOf(cur) + 1) % hooks.length];
@@ -229,8 +414,7 @@ but you can learn to breathe through the storm.</textarea>
     });
 
     videoInput.addEventListener('change', (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
+      const file = e.target.files[0]; if (!file) return;
       srcVideo.src = URL.createObjectURL(file);
       srcVideo.onloadeddata = () => {
         isVideoLoaded = true; srcVideo.play();
@@ -238,7 +422,7 @@ but you can learn to breathe through the storm.</textarea>
       };
     });
 
-    togglePlayBtn.addEventListener('click', () => {
+    document.getElementById('togglePlayBtn').addEventListener('click', () => {
       if (!isVideoLoaded) return;
       srcVideo.paused ? srcVideo.play() : srcVideo.pause();
     });
@@ -268,9 +452,8 @@ but you can learn to breathe through the storm.</textarea>
     }
 
     function drawFrame(timeMs) {
-      const W = canvas.width, H = canvas.height;
+      const W = 1080, H = 1920;
       ctx.clearRect(0, 0, W, H);
-
       if (isVideoLoaded && srcVideo.readyState >= 2) {
         const vw = srcVideo.videoWidth, vh = srcVideo.videoHeight, tr = W / H, vr = vw / vh;
         let sx = 0, sy = 0, sw = vw, sh = vh;
@@ -282,7 +465,6 @@ but you can learn to breathe through the storm.</textarea>
         grad.addColorStop(0, '#0f172a'); grad.addColorStop(1, '#1e293b');
         ctx.fillStyle = grad; ctx.fillRect(0, 0, W, H);
       }
-
       const dim = Number(dimBgEl.value) / 100;
       if (dim > 0) { ctx.fillStyle = `rgba(0,0,0,${dim})`; ctx.fillRect(0, 0, W, H); }
 
